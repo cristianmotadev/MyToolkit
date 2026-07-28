@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#121212">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚙️ Configurações da Rede"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:paddingBottom="16dp"/>
+
+    <!-- Switch para mDNS Contínuo -->
+    <Switch
+        android:id="@+id/switchMdns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Escaneamento Contínuo mDNS (Segundo Plano)"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Deixa a escuta ativa para capturar o nome de aparelhos que saem do modo de economia de energia."
+        android:textColor="#AAAAAA"
+        android:textSize="12sp"
+        android:paddingBottom="24dp"/>
+
+    <!-- Switch para Permissão de Localização (Pop-up Nativo) -->
+    <Switch
+        android:id="@+id/switchLocationPermission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Permissão de Localização (Capturar Wi-Fi)"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Necessário para o Android conseguir ler o nome da rede Wi-Fi atual durante a varredura."
+        android:textColor="#AAAAAA"
+        android:textSize="12sp"
+        android:paddingBottom="24dp"/>
+
+    <!-- Botão para Editar JSON -->
+    <Button
+        android:id="@+id/btnEditJson"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👥 Gerenciar Dispositivos Salvos"
+        android:backgroundTint="#1E88E5"
+        android:textColor="#FFFFFF"
+        android:padding="12dp"/>
+
+    <!-- Configuração do Intervalo de Tempo -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Intervalo de Escaneamento (Segundos):"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:paddingTop="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="16dp">
+
+        <EditText
+            android:id="@+id/editIntervalo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="number"
+            android:text="30"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2196F3"/>
+
+        <Button
+            android:id="@+id/btnSalvarIntervalo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OK"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#1E1E1E"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:strokeColor="#333333"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtDeviceName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apelido do Aparelho"
+            android:textColor="#2196F3"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtDeviceMac"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MAC: 00:00:00:00:00:00"
+            android:textColor="#CCCCCC"
+            android:textSize="14sp"
+            android:paddingTop="4dp" />
+
+        <TextView
+            android:id="@+id/txtDeviceBrand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Marca: Desconhecida"
+            android:textColor="#888888"
+            android:textSize="13sp"
+            android:paddingTop="2dp"
+            android:paddingBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnEditDevice"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Editar"
+                android:textSize="12sp"
+                android:backgroundTint="#2196F3"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnDeleteDevice"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Excluir"
+                android:textSize="12sp"
+                android:backgroundTint="#D32F2F"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
