@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -11,6 +12,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" tools:ignore="ForegroundServicePermission" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -51,7 +56,18 @@
             android:name=".NetworkScannerActivity"
             android:exported="false" />
 
-        <!-- Tela de Configururações -->
+        <!-- Tela da Ferramenta 4 (Redes Wi-Fi Próximas + Auditoria WPS passiva) -->
+        <activity
+            android:name=".WifiScannerActivity"
+            android:exported="false" />
+
+        <!-- Tela da Ferramenta 5 (NFC: Ler/Escrever NDEF + Dump/Clonagem MIFARE Classic) -->
+        <activity
+            android:name=".NfcToolsActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <!-- Tela de Configurações -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />

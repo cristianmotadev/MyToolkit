@@ -1,10 +1,15 @@
 package com.mtp.mytoolsproject;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,8 +19,22 @@ import java.io.InputStreamReader;
 
 public class NetworkScannerActivity extends AppCompatActivity {
 
+    /**
+     * Essa varredura já é bem mais pesada que a de Wi-Fi (ping em 254 IPs + leitura
+     * de ARP + consulta de fabricante + checagem de portas por dispositivo encontrado),
+     * então o intervalo mínimo recomendado é bem maior.
+     */
+    private static final int INTERVALO_MINIMO_RECOMENDADO_SEGUNDOS = 90;
+
     private LinearLayout containerNetworkCards;
     private Button btnScan;
+    private Switch switchAutoScan;
+    private EditText editIntervalo;
+    private TextView txtAviso;
+    private Handler autoScanHandler;
+    private Runnable autoScanRunnable;
+
+    private volatile boolean varreduraEmAndamento = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,19 +43,96 @@ public class NetworkScannerActivity extends AppCompatActivity {
 
         containerNetworkCards = findViewById(R.id.containerNetworkCards);
         btnScan = findViewById(R.id.btnScan);
+        switchAutoScan = findViewById(R.id.switchAutoScanNetwork);
+        editIntervalo = findViewById(R.id.editIntervaloNetwork);
+        txtAviso = findViewById(R.id.txtAvisoIntervaloNetwork);
+        autoScanHandler = new Handler(Looper.getMainLooper());
+
+        int intervaloPadrao = getSharedPreferences("NetworkPrefs", MODE_PRIVATE).getInt("network_scan_intervalo_padrao", 90);
+        editIntervalo.setText(String.valueOf(intervaloPadrao));
+
+        atualizarAvisoIntervalo();
 
         btnScan.setOnClickListener(v -> scanNetwork());
+
+        switchAutoScan.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            editIntervalo.setEnabled(!isChecked);
+            if (isChecked) {
+                iniciarModoAutomatico();
+            } else {
+                pararModoAutomatico();
+            }
+        });
+
+        editIntervalo.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                atualizarAvisoIntervalo();
+            }
+        });
+    }
+
+    private int lerIntervaloConfigurado() {
+        try {
+            int valor = Integer.parseInt(editIntervalo.getText().toString().trim());
+            return Math.max(valor, 15);
+        } catch (Exception e) {
+            return 90;
+        }
+    }
+
+    private void atualizarAvisoIntervalo() {
+        int intervalo = lerIntervaloConfigurado();
+        if (intervalo < INTERVALO_MINIMO_RECOMENDADO_SEGUNDOS) {
+            txtAviso.setText("⚠️ Esta varredura é pesada (ping + ARP + fabricante + portas por dispositivo). Intervalos abaixo de "
+                    + INTERVALO_MINIMO_RECOMENDADO_SEGUNDOS + "s podem sobrepor varreduras ou sobrecarregar a API de fabricantes.");
+            txtAviso.setTextColor(0xFFFFA726);
+        } else {
+            txtAviso.setText("Intervalo dentro da faixa recomendada.");
+            txtAviso.setTextColor(0xFF4CAF50);
+        }
+    }
+
+    private void iniciarModoAutomatico() {
+        pararModoAutomatico();
+        autoScanRunnable = new Runnable() {
+            @Override
+            public void run() {
+                scanNetwork();
+                autoScanHandler.postDelayed(this, lerIntervaloConfigurado() * 1000L);
+            }
+        };
+        autoScanHandler.post(autoScanRunnable);
+        Toast.makeText(this, "Varredura automática ativada (a cada " + lerIntervaloConfigurado() + "s).", Toast.LENGTH_SHORT).show();
+    }
+
+    private void pararModoAutomatico() {
+        if (autoScanRunnable != null) {
+            autoScanHandler.removeCallbacks(autoScanRunnable);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pararModoAutomatico();
     }
 
     private void scanNetwork() {
+        if (varreduraEmAndamento) {
+            // Evita que o modo automático dispare uma nova varredura em cima de uma que ainda não terminou
+            Toast.makeText(this, "Ainda terminando a varredura anterior — aguarde.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        varreduraEmAndamento = true;
+
         containerNetworkCards.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        // Descobre a sub-rede real do aparelho em vez de usar 192.168.1.x fixo
         String prefixoRede = NetworkUtils.descobrirPrefixoRedeLocal();
         Toast.makeText(this, "Varrendo " + prefixoRede + "0/24 e salvando no JSON...", Toast.LENGTH_SHORT).show();
 
-        // Toda a varredura roda fora da thread principal (ping, ARP, HTTP, I/O de arquivo)
         new Thread(() -> {
             try {
                 for (int i = 1; i < 255; i++) {
@@ -133,6 +229,8 @@ public class NetworkScannerActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> adicionarCard(inflater, containerNetworkCards, "⚠️ Erro", String.valueOf(e.getMessage())));
+            } finally {
+                varreduraEmAndamento = false;
             }
         }).start();
     }

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="📲 Ferramentas NFC"
+        android:textColor="#2196F3"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtNfcStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Escolha uma ação e aproxime a tag."
+        android:textColor="#AAAAAA"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/editNfcTexto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="#1E1E1E"
+        android:hint="Texto para gravar na tag (modo Escrever)"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <Button
+        android:id="@+id/btnNfcLer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="#2196F3"
+        android:text="🔍 Ler Tag (NDEF)"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/btnNfcEscrever"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="#2196F3"
+        android:text="✍️ Escrever Texto (NDEF)"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/btnNfcDump"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="#FFA726"
+        android:text="🗂️ Dump Completo (MIFARE Classic)"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/btnNfcClonar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="#D32F2F"
+        android:text="📋 Clonar para Tag em Branco"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/btnNfcCartao"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#8E24AA"
+        android:text="💳 Ler Cartão (Crédito/Débito)"
+        android:textColor="#FFFFFF" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#1A1A1A"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/txtNfcLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#CCCCCC"
+            android:textSize="13sp" />
+    </ScrollView>
+
+</LinearLayout>

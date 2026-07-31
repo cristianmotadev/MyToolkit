@@ -203,4 +203,29 @@ public final class NetworkUtils {
             return false;
         }
     }
+
+    // ---------------------------------------------------------------
+    // Verificação de root
+    // ---------------------------------------------------------------
+
+    /**
+     * Verifica de forma explícita se o binário "su" está disponível e concede acesso.
+     * Evita que as ferramentas do app falhem silenciosamente (catch genérico) sem
+     * o usuário entender o motivo — usado na tela de Configurações.
+     */
+    public static boolean verificarRootDisponivel() {
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(new String[]{"su", "-c", "id"});
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(process.getInputStream()));
+            String saida = reader.readLine();
+            int codigoSaida = process.waitFor();
+            return codigoSaida == 0 && saida != null && saida.contains("uid=0");
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (process != null) process.destroy();
+        }
+    }
 }

@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         CardView cardWifi = findViewById(R.id.cardWifi);
         CardView cardScanner = findViewById(R.id.cardScanner);
+        CardView cardWifiScan = findViewById(R.id.cardWifiScan);
+        CardView cardNfc = findViewById(R.id.cardNfc);
         CardView cardConfig = findViewById(R.id.cardConfig);
 
         cardWifi.setOnClickListener(new View.OnClickListener() {
@@ -43,6 +45,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, NetworkScannerActivity.class));
+            }
+        });
+
+        cardWifiScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, WifiScannerActivity.class));
+            }
+        });
+
+        cardNfc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, NfcToolsActivity.class));
             }
         });
 

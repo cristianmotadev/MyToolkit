@@ -4,24 +4,25 @@
     android:layout_height="match_parent"
     android:background="#121212"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="20dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text="🌐 Dispositivos na Rede"
+        android:text="📡 Redes Wi-Fi Próximas"
         android:textColor="#2196F3"
         android:textSize="22sp"
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/btnScan"
+        android:id="@+id/btnEscanearRedes"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="52dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#2196F3"
-        android:text="🔍 Iniciar Varredura (Manual)"
+        android:text="🔍 Escanear Agora (Manual)"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
 
@@ -41,7 +42,7 @@
             android:padding="14dp">
 
             <Switch
-                android:id="@+id/switchAutoScanNetwork"
+                android:id="@+id/switchAutoScanWifi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Varredura automática"
@@ -63,18 +64,18 @@
                     android:textSize="13sp" />
 
                 <EditText
-                    android:id="@+id/editIntervaloNetwork"
+                    android:id="@+id/editIntervaloWifi"
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:backgroundTint="#2196F3"
                     android:inputType="number"
-                    android:text="90"
+                    android:text="30"
                     android:textColor="#FFFFFF" />
             </LinearLayout>
 
             <TextView
-                android:id="@+id/txtAvisoIntervaloNetwork"
+                android:id="@+id/txtAvisoIntervaloWifi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -89,7 +90,7 @@
         android:layout_weight="1">
 
         <LinearLayout
-            android:id="@+id/containerNetworkCards"
+            android:id="@+id/containerRedesWifi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />

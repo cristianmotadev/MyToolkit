@@ -88,7 +88,9 @@ public class NetworkMonitorService extends Service {
             cache.put(chaveAlvo, obj);
             NetworkUtils.salvarCache(this, cache);
 
-            if (ehNovo && macKey != null) {
+            boolean notificacoesAtivas = getSharedPreferences("NetworkPrefs", MODE_PRIVATE)
+                    .getBoolean("notificar_novos_dispositivos", true);
+            if (ehNovo && macKey != null && notificacoesAtivas) {
                 enviarNotificacaoNovoDispositivo(ip, macKey, obj.getString("fabricante"));
             }
         } catch (Exception ignored) {}
