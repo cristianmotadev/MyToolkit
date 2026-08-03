@@ -78,16 +78,48 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- Ferramenta: Calculadora de Sub-rede/CIDR -->
+        <activity
+            android:name=".SubnetCalculatorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Scanner de Porta Customizável -->
+        <activity
+            android:name=".PortScannerActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Teste de Velocidade -->
+        <activity
+            android:name=".SpeedTestActivity"
+            android:exported="false" />
+
         <!-- Tela do Banco de Dados JSON -->
         <activity
             android:name=".ManageDevicesActivity"
             android:exported="false" />
 
-        <!-- Serviço de Monitoramento em Segundo Plano -->
+        <!-- Serviço de Monitoramento em Segundo Plano (Dispositivos na Rede) -->
         <service
             android:name=".NetworkMonitorService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Serviço de Monitoramento em Segundo Plano (Radar Wi-Fi) -->
+        <service
+            android:name=".WifiScanBackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- FileProvider: necessário para exportar/compartilhar o banco de dados JSON -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

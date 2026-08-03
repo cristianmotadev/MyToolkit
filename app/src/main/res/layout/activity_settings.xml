@@ -414,6 +414,26 @@
                 android:backgroundTint="#D32F2F"
                 android:textColor="#FFFFFF"
                 android:padding="12dp"/>
+
+            <Button
+                android:id="@+id/btnExportarCache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📤 Exportar Banco de Dados"
+                android:backgroundTint="#43A047"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <Button
+                android:id="@+id/btnImportarCache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📥 Importar Banco de Dados"
+                android:backgroundTint="#43A047"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

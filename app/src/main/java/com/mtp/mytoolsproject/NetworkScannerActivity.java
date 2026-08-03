@@ -1,8 +1,9 @@
 package com.mtp.mytoolsproject;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +18,14 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+/**
+ * Varredura manual/pontual de dispositivos na rede local (mostra os cards em
+ * tempo real nesta tela). O modo automático aqui é o MESMO monitoramento em
+ * segundo plano usado pelas Configurações ("Escaneamento contínuo mDNS") —
+ * ligar aqui ou lá controla o mesmo NetworkMonitorService, que continua
+ * rodando mesmo depois de sair desta tela. Os resultados encontrados em
+ * segundo plano ficam disponíveis em "Dispositivos Salvos".
+ */
 public class NetworkScannerActivity extends AppCompatActivity {
 
     /**
@@ -31,8 +40,7 @@ public class NetworkScannerActivity extends AppCompatActivity {
     private Switch switchAutoScan;
     private EditText editIntervalo;
     private TextView txtAviso;
-    private Handler autoScanHandler;
-    private Runnable autoScanRunnable;
+    private SharedPreferences prefs;
 
     private volatile boolean varreduraEmAndamento = false;
 
@@ -46,10 +54,10 @@ public class NetworkScannerActivity extends AppCompatActivity {
         switchAutoScan = findViewById(R.id.switchAutoScanNetwork);
         editIntervalo = findViewById(R.id.editIntervaloNetwork);
         txtAviso = findViewById(R.id.txtAvisoIntervaloNetwork);
-        autoScanHandler = new Handler(Looper.getMainLooper());
+        prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
 
-        int intervaloPadrao = getSharedPreferences("NetworkPrefs", MODE_PRIVATE).getInt("network_scan_intervalo_padrao", 90);
-        editIntervalo.setText(String.valueOf(intervaloPadrao));
+        int intervaloSalvo = prefs.getInt("intervalo_segundos", prefs.getInt("network_scan_intervalo_padrao", 90));
+        editIntervalo.setText(String.valueOf(intervaloSalvo));
 
         atualizarAvisoIntervalo();
 
@@ -58,9 +66,9 @@ public class NetworkScannerActivity extends AppCompatActivity {
         switchAutoScan.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             editIntervalo.setEnabled(!isChecked);
             if (isChecked) {
-                iniciarModoAutomatico();
+                ativarVarreduraEmSegundoPlano();
             } else {
-                pararModoAutomatico();
+                desativarVarreduraEmSegundoPlano();
             }
         });
 
@@ -94,29 +102,36 @@ public class NetworkScannerActivity extends AppCompatActivity {
         }
     }
 
-    private void iniciarModoAutomatico() {
-        pararModoAutomatico();
-        autoScanRunnable = new Runnable() {
-            @Override
-            public void run() {
-                scanNetwork();
-                autoScanHandler.postDelayed(this, lerIntervaloConfigurado() * 1000L);
-            }
-        };
-        autoScanHandler.post(autoScanRunnable);
-        Toast.makeText(this, "Varredura automática ativada (a cada " + lerIntervaloConfigurado() + "s).", Toast.LENGTH_SHORT).show();
+    private void ativarVarreduraEmSegundoPlano() {
+        int intervalo = lerIntervaloConfigurado();
+        prefs.edit()
+                .putInt("intervalo_segundos", intervalo)
+                .putBoolean("mdns_continuous", true)
+                .apply();
+
+        Intent serviceIntent = new Intent(this, NetworkMonitorService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+        Toast.makeText(this, "Varredura automática ativada (a cada " + intervalo + "s) — continua rodando mesmo se você sair da tela. Novos dispositivos aparecem em \"Dispositivos Salvos\".", Toast.LENGTH_LONG).show();
     }
 
-    private void pararModoAutomatico() {
-        if (autoScanRunnable != null) {
-            autoScanHandler.removeCallbacks(autoScanRunnable);
-        }
+    private void desativarVarreduraEmSegundoPlano() {
+        prefs.edit().putBoolean("mdns_continuous", false).apply();
+        stopService(new Intent(this, NetworkMonitorService.class));
+        Toast.makeText(this, "Varredura automática desativada.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        pararModoAutomatico();
+    protected void onResume() {
+        super.onResume();
+        // Reflete o estado real do serviço — pode ter sido ligado nesta tela,
+        // nas Configurações, ou numa sessão anterior.
+        boolean autoAtivo = prefs.getBoolean("mdns_continuous", false);
+        switchAutoScan.setChecked(autoAtivo);
+        editIntervalo.setEnabled(!autoAtivo);
     }
 
     private void scanNetwork() {
@@ -182,6 +197,7 @@ public class NetworkScannerActivity extends AppCompatActivity {
                             obj.put("rede_wifi", nomeRedeAtual);
                             obj.put("ip", ip);
                             obj.put("portas", statusPortas);
+                            obj.put("ultimaVez", System.currentTimeMillis());
                         } else {
                             obj = new JSONObject();
                             obj.put("apelido", apelidoPadrao);
@@ -189,6 +205,7 @@ public class NetworkScannerActivity extends AppCompatActivity {
                             obj.put("ip", ip);
                             obj.put("rede_wifi", nomeRedeAtual);
                             obj.put("portas", statusPortas);
+                            obj.put("ultimaVez", System.currentTimeMillis());
                             cache.put(macKey, obj);
                         }
                         houveMudanca = true;

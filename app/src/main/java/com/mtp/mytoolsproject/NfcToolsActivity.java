@@ -37,12 +37,13 @@ import java.util.List;
  */
 public class NfcToolsActivity extends AppCompatActivity {
 
-    private enum Modo { NENHUM, LER, ESCREVER, DUMP, CLONAR, LER_CARTAO }
+    private enum Modo { NENHUM, LER, ESCREVER, DUMP, CLONAR, LER_CARTAO, ESCREVER_VCARD }
 
     private NfcAdapter nfcAdapter;
     private volatile Modo modoAtual = Modo.NENHUM;
 
     private EditText editTexto;
+    private EditText editVCardNome, editVCardTelefone, editVCardEmail;
     private TextView txtLog;
     private TextView txtStatus;
 
@@ -57,6 +58,9 @@ public class NfcToolsActivity extends AppCompatActivity {
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         editTexto = findViewById(R.id.editNfcTexto);
+        editVCardNome = findViewById(R.id.editVCardNome);
+        editVCardTelefone = findViewById(R.id.editVCardTelefone);
+        editVCardEmail = findViewById(R.id.editVCardEmail);
         txtLog = findViewById(R.id.txtNfcLog);
         txtStatus = findViewById(R.id.txtNfcStatus);
         txtLog.setMovementMethod(new ScrollingMovementMethod());
@@ -66,6 +70,7 @@ public class NfcToolsActivity extends AppCompatActivity {
         Button btnDump = findViewById(R.id.btnNfcDump);
         Button btnClonar = findViewById(R.id.btnNfcClonar);
         Button btnCartao = findViewById(R.id.btnNfcCartao);
+        Button btnVCard = findViewById(R.id.btnNfcVCard);
 
         if (nfcAdapter == null) {
             txtStatus.setText("❌ Este aparelho não possui NFC.");
@@ -74,6 +79,7 @@ public class NfcToolsActivity extends AppCompatActivity {
             btnDump.setEnabled(false);
             btnClonar.setEnabled(false);
             btnCartao.setEnabled(false);
+            btnVCard.setEnabled(false);
             return;
         }
 
@@ -99,6 +105,15 @@ public class NfcToolsActivity extends AppCompatActivity {
         });
 
         btnCartao.setOnClickListener(v -> ativarModo(Modo.LER_CARTAO, "Aproxime o cartão de crédito/débito (contactless) para ler os dados públicos..."));
+
+        btnVCard.setOnClickListener(v -> {
+            String nome = editVCardNome.getText().toString().trim();
+            if (nome.isEmpty()) {
+                Toast.makeText(this, "Digite pelo menos o nome antes de escrever.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ativarModo(Modo.ESCREVER_VCARD, "Aproxime a tag para ESCREVER o cartão de visita...");
+        });
     }
 
     private void ativarModo(Modo modo, String instrucao) {
@@ -138,6 +153,9 @@ public class NfcToolsActivity extends AppCompatActivity {
 
         final Modo modoNoMomento = modoAtual;
         final String textoParaEscrever = editTexto.getText().toString();
+        final String vCardNome = editVCardNome.getText().toString().trim();
+        final String vCardTelefone = editVCardTelefone.getText().toString().trim();
+        final String vCardEmail = editVCardEmail.getText().toString().trim();
         modoAtual = Modo.NENHUM; // evita reprocessar a mesma tag em loop
         runOnUiThread(() -> txtStatus.setText("⏳ Processando..."));
 
@@ -158,6 +176,9 @@ public class NfcToolsActivity extends AppCompatActivity {
                     break;
                 case LER_CARTAO:
                     lerCartaoEmv(tag);
+                    break;
+                case ESCREVER_VCARD:
+                    escreverVCard(tag, vCardNome, vCardTelefone, vCardEmail);
                     break;
                 default:
                     break;
@@ -188,7 +209,12 @@ public class NfcToolsActivity extends AppCompatActivity {
                 log("ℹ️ Nenhum registro encontrado na tag.");
             }
             for (NdefRecord registro : registros) {
-                log("📄 Conteúdo lido: " + decodificarTextRecord(registro));
+                if (registro.getTnf() == NdefRecord.TNF_MIME_MEDIA) {
+                    String mimeType = registro.toMimeType();
+                    log("📇 Registro " + mimeType + " encontrado:\n" + new String(registro.getPayload(), StandardCharsets.UTF_8));
+                } else {
+                    log("📄 Conteúdo lido: " + decodificarTextRecord(registro));
+                }
             }
         } catch (Exception e) {
             log("❌ Erro ao ler a tag: " + e.getMessage());
@@ -259,6 +285,62 @@ public class NfcToolsActivity extends AppCompatActivity {
         }
 
         log("❌ Esta tag não suporta NDEF nem formatação (provavelmente é uma MIFARE Classic sem NDEF — use o Dump Completo).");
+    }
+
+    // ---------------------------------------------------------------
+    // Modo ESCREVER VCARD (cartão de visita via NDEF, tipo MIME text/vcard)
+    // ---------------------------------------------------------------
+
+    private void escreverVCard(Tag tag, String nome, String telefone, String email) {
+        StringBuilder vcard = new StringBuilder();
+        vcard.append("BEGIN:VCARD\n");
+        vcard.append("VERSION:3.0\n");
+        vcard.append("FN:").append(nome).append("\n");
+        if (!telefone.isEmpty()) vcard.append("TEL:").append(telefone).append("\n");
+        if (!email.isEmpty()) vcard.append("EMAIL:").append(email).append("\n");
+        vcard.append("END:VCARD\n");
+
+        NdefRecord record = NdefRecord.createMime("text/vcard", vcard.toString().getBytes(StandardCharsets.UTF_8));
+        NdefMessage mensagem = new NdefMessage(new NdefRecord[]{record});
+
+        Ndef ndef = Ndef.get(tag);
+        if (ndef != null) {
+            try {
+                ndef.connect();
+                if (!ndef.isWritable()) {
+                    log("⚠️ Esta tag está protegida contra escrita (somente leitura).");
+                    return;
+                }
+                int tamanhoNecessario = mensagem.toByteArray().length;
+                if (tamanhoNecessario > ndef.getMaxSize()) {
+                    log("⚠️ Cartão de visita grande demais para a tag (" + tamanhoNecessario + " bytes; capacidade: " + ndef.getMaxSize() + " bytes).");
+                    return;
+                }
+                ndef.writeNdefMessage(mensagem);
+                log("✅ Cartão de visita gravado com sucesso! Outros celulares vão reconhecer automaticamente ao aproximar.");
+            } catch (Exception e) {
+                log("❌ Erro ao escrever: " + e.getMessage());
+            } finally {
+                try { ndef.close(); } catch (Exception ignored) {}
+            }
+            return;
+        }
+
+        NdefFormatable formatavel = NdefFormatable.get(tag);
+        if (formatavel != null) {
+            try {
+                formatavel.connect();
+                formatavel.format(mensagem);
+                log("✅ Tag em branco formatada e cartão de visita gravado com sucesso!");
+            } catch (Exception e) {
+                log("❌ Erro ao formatar/escrever: " + e.getMessage());
+            } finally {
+                try { formatavel.close(); } catch (Exception ignored) {}
+            }
+            return;
+        }
+
+        log("❌ Esta tag não suporta NDEF nem formatação.");
     }
 
     // ---------------------------------------------------------------

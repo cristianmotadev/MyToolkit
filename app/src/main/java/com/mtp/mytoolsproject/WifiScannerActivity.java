@@ -5,12 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -30,7 +30,9 @@ import java.util.List;
 /**
  * Escaneia redes Wi-Fi disponíveis ao redor (não é necessário estar conectado
  * em nenhuma delas). Suporta varredura manual (um clique) e varredura
- * automática com intervalo configurável pelo usuário.
+ * automática com intervalo configurável pelo usuário — que, ao ser ativada,
+ * continua rodando em segundo plano via WifiScanBackgroundService mesmo
+ * depois de sair desta tela.
  */
 public class WifiScannerActivity extends AppCompatActivity {
 
@@ -46,11 +48,7 @@ public class WifiScannerActivity extends AppCompatActivity {
     private TextView txtAviso;
     private WifiManager wifiManager;
     private BroadcastReceiver scanReceiver;
-    private Handler autoScanHandler;
-    private Runnable autoScanRunnable;
-
-    /** Só atualiza a tela quando o resultado vem de uma varredura que ESTE app pediu. */
-    private volatile boolean aguardandoResultadoProprio = false;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +61,10 @@ public class WifiScannerActivity extends AppCompatActivity {
         editIntervalo = findViewById(R.id.editIntervaloWifi);
         txtAviso = findViewById(R.id.txtAvisoIntervaloWifi);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        autoScanHandler = new Handler(Looper.getMainLooper());
+        prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
 
-        int intervaloPadrao = getSharedPreferences("NetworkPrefs", MODE_PRIVATE).getInt("wifi_scan_intervalo_padrao", 30);
-        editIntervalo.setText(String.valueOf(intervaloPadrao));
+        int intervaloSalvo = prefs.getInt("wifi_auto_scan_intervalo_segundos", prefs.getInt("wifi_scan_intervalo_padrao", 30));
+        editIntervalo.setText(String.valueOf(intervaloSalvo));
 
         atualizarAvisoIntervalo();
 
@@ -75,9 +73,9 @@ public class WifiScannerActivity extends AppCompatActivity {
         switchAutoScan.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             editIntervalo.setEnabled(!isChecked);
             if (isChecked) {
-                iniciarModoAutomatico();
+                ativarVarreduraEmSegundoPlano();
             } else {
-                pararModoAutomatico();
+                desativarVarreduraEmSegundoPlano();
             }
         });
 
@@ -92,13 +90,10 @@ public class WifiScannerActivity extends AppCompatActivity {
         scanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (!aguardandoResultadoProprio) return; // ignora varreduras disparadas pelo sistema ou por outros apps
-                aguardandoResultadoProprio = false;
-                boolean sucesso = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
+                // Atualiza sempre que qualquer varredura terminar (manual, automática em
+                // segundo plano, ou até do próprio sistema) — assim a tela sempre reflete
+                // o resultado mais recente disponível.
                 exibirResultados();
-                if (!sucesso) {
-                    Toast.makeText(WifiScannerActivity.this, "Varredura falhou, exibindo último resultado disponível.", Toast.LENGTH_SHORT).show();
-                }
             }
         };
     }
@@ -124,23 +119,26 @@ public class WifiScannerActivity extends AppCompatActivity {
         }
     }
 
-    private void iniciarModoAutomatico() {
-        pararModoAutomatico(); // evita duplicar o loop se já tinha um rodando
-        autoScanRunnable = new Runnable() {
-            @Override
-            public void run() {
-                iniciarVarredura();
-                autoScanHandler.postDelayed(this, lerIntervaloConfigurado() * 1000L);
-            }
-        };
-        autoScanHandler.post(autoScanRunnable);
-        Toast.makeText(this, "Varredura automática ativada (a cada " + lerIntervaloConfigurado() + "s).", Toast.LENGTH_SHORT).show();
+    private void ativarVarreduraEmSegundoPlano() {
+        int intervalo = lerIntervaloConfigurado();
+        prefs.edit()
+                .putInt("wifi_auto_scan_intervalo_segundos", intervalo)
+                .putBoolean("wifi_auto_scan_ativo", true)
+                .apply();
+
+        Intent serviceIntent = new Intent(this, WifiScanBackgroundService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+        Toast.makeText(this, "Radar Wi-Fi automático ativado (a cada " + intervalo + "s) — continua rodando mesmo se você sair da tela.", Toast.LENGTH_LONG).show();
     }
 
-    private void pararModoAutomatico() {
-        if (autoScanRunnable != null) {
-            autoScanHandler.removeCallbacks(autoScanRunnable);
-        }
+    private void desativarVarreduraEmSegundoPlano() {
+        prefs.edit().putBoolean("wifi_auto_scan_ativo", false).apply();
+        stopService(new Intent(this, WifiScanBackgroundService.class));
+        Toast.makeText(this, "Radar Wi-Fi automático desativado.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -148,6 +146,13 @@ public class WifiScannerActivity extends AppCompatActivity {
         super.onResume();
         IntentFilter filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         registerReceiver(scanReceiver, filter);
+
+        // Reflete o estado real do serviço (pode ter sido ligado numa sessão anterior)
+        boolean autoAtivo = prefs.getBoolean("wifi_auto_scan_ativo", false);
+        switchAutoScan.setChecked(autoAtivo);
+        editIntervalo.setEnabled(!autoAtivo);
+
+        exibirResultados(); // mostra na hora o que já estiver em cache, sem esperar nova varredura
     }
 
     @Override
@@ -156,7 +161,8 @@ public class WifiScannerActivity extends AppCompatActivity {
         try {
             unregisterReceiver(scanReceiver);
         } catch (Exception ignored) {}
-        pararModoAutomatico();
+        // Propositalmente NÃO paramos o serviço de segundo plano aqui — se o modo
+        // automático estiver ativo, ele deve continuar rodando mesmo fora da tela.
     }
 
     private void iniciarVarredura() {
@@ -172,11 +178,9 @@ public class WifiScannerActivity extends AppCompatActivity {
             return;
         }
 
-        aguardandoResultadoProprio = true;
         boolean iniciouComSucesso = wifiManager.startScan();
         if (!iniciouComSucesso) {
             // O Android limita a frequência de varreduras (throttling) desde a versão 9.
-            aguardandoResultadoProprio = false;
             Toast.makeText(this, "Varredura limitada pelo sistema (throttling) — mostrando último resultado.", Toast.LENGTH_LONG).show();
             exibirResultados();
         }

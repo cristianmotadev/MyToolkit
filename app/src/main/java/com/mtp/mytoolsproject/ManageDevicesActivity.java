@@ -43,9 +43,8 @@ public class ManageDevicesActivity extends AppCompatActivity {
             String apelido = obj.optString("apelido", "Dispositivo sem apelido");
             String fabricante = obj.optString("fabricante", "Marca Desconhecida");
             String redeWifi = obj.optString("rede_wifi", "Desconhecida");
-            // O campo "portas" já era salvo no JSON, mas esta tela nunca chegava
-            // a lê-lo nem exibi-lo — por isso parecia que a informação sumia.
             String portas = obj.optString("portas", "Ainda não verificado");
+            String ultimaVez = NetworkUtils.formatarTempoRelativo(obj.optLong("ultimaVez", 0));
 
             View card = inflater.inflate(R.layout.item_saved_device, containerSavedDevices, false);
             TextView txtName = card.findViewById(R.id.txtDeviceName);
@@ -56,7 +55,7 @@ public class ManageDevicesActivity extends AppCompatActivity {
 
             txtName.setText(apelido);
             txtMac.setText("MAC: " + mac);
-            txtBrand.setText("Marca: " + fabricante + "\n📶 Rede: " + redeWifi + "\n🔌 Portas: " + portas);
+            txtBrand.setText("Marca: " + fabricante + "\n📶 Rede: " + redeWifi + "\n🔌 Portas: " + portas + "\n🕒 " + ultimaVez);
 
             btnEdit.setOnClickListener(v -> mostrarDialogoEditar(mac, apelido));
             btnDelete.setOnClickListener(v -> excluirDispositivo(mac));

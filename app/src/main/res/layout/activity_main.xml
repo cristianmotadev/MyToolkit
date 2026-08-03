@@ -229,6 +229,162 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Botão: Calculadora de Sub-rede -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSubnet"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="#2196F3"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧮"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calculadora de Sub-rede"
+                    android:textColor="#2196F3"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="CIDR, máscara, broadcast e hosts"
+                    android:textColor="#AAAAAA"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Scanner de Porta -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPortScanner"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="#2196F3"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔌"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scanner de Porta"
+                    android:textColor="#2196F3"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Faixa de portas customizável"
+                    android:textColor="#AAAAAA"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Teste de Velocidade -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSpeedTest"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="#2196F3"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚀"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teste de Velocidade"
+                    android:textColor="#2196F3"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Ping, download e upload"
+                    android:textColor="#AAAAAA"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <!-- Botão Card 3: Configurações -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardConfig"

@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         CardView cardScanner = findViewById(R.id.cardScanner);
         CardView cardWifiScan = findViewById(R.id.cardWifiScan);
         CardView cardNfc = findViewById(R.id.cardNfc);
+        CardView cardSubnet = findViewById(R.id.cardSubnet);
+        CardView cardPortScanner = findViewById(R.id.cardPortScanner);
+        CardView cardSpeedTest = findViewById(R.id.cardSpeedTest);
         CardView cardConfig = findViewById(R.id.cardConfig);
 
         cardWifi.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +62,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, NfcToolsActivity.class));
+            }
+        });
+
+        cardSubnet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SubnetCalculatorActivity.class));
+            }
+        });
+
+        cardPortScanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PortScannerActivity.class));
+            }
+        });
+
+        cardSpeedTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SpeedTestActivity.class));
             }
         });
 

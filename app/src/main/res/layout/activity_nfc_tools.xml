@@ -81,6 +81,65 @@
         android:text="💳 Ler Cartão (Crédito/Débito)"
         android:textColor="#FFFFFF" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="16dp"
+        android:background="#333333" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="📇 Cartão de Visita (vCard)"
+        android:textColor="#2196F3"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/editVCardNome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="#1E1E1E"
+        android:hint="Nome completo"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <EditText
+        android:id="@+id/editVCardTelefone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="#1E1E1E"
+        android:hint="Telefone (opcional)"
+        android:inputType="phone"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <EditText
+        android:id="@+id/editVCardEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="#1E1E1E"
+        android:hint="E-mail (opcional)"
+        android:inputType="textEmailAddress"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <Button
+        android:id="@+id/btnNfcVCard"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#00897B"
+        android:text="📇 Escrever Cartão de Visita"
+        android:textColor="#FFFFFF" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"

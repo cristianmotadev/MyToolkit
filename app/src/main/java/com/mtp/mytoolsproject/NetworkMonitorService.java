@@ -81,6 +81,7 @@ public class NetworkMonitorService extends Service {
             // (mesma chave usada pelo NetworkScannerActivity). Por isso o nome da rede
             // sempre aparecia como "Desconhecida" nos dispositivos achados pelo mDNS.
             obj.put("rede_wifi", nomeRede);
+            obj.put("ultimaVez", System.currentTimeMillis());
             if (apelido != null && !apelido.isEmpty()) {
                 obj.put("apelido", apelido);
             }

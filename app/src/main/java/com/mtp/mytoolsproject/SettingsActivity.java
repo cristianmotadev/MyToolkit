@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -15,13 +16,21 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import org.json.JSONObject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final int REQUEST_CODE_IMPORTAR = 301;
+
     private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
-    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin;
+    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache;
     private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp;
     private SharedPreferences prefs;
 
@@ -43,6 +52,8 @@ public class SettingsActivity extends AppCompatActivity {
         btnSalvarIntervalosPadrao = findViewById(R.id.btnSalvarIntervalosPadrao);
         switchBloqueioApp = findViewById(R.id.switchBloqueioApp);
         btnAlterarPin = findViewById(R.id.btnAlterarPin);
+        btnExportarCache = findViewById(R.id.btnExportarCache);
+        btnImportarCache = findViewById(R.id.btnImportarCache);
         txtStatusRoot = findViewById(R.id.txtStatusRoot);
         txtStatusNotificacao = findViewById(R.id.txtStatusNotificacao);
         txtVersaoApp = findViewById(R.id.txtVersaoApp);
@@ -140,6 +151,70 @@ public class SettingsActivity extends AppCompatActivity {
         btnLimparCache.setOnClickListener(v -> confirmarLimpezaCache());
 
         btnVerificarRoot.setOnClickListener(v -> verificarRoot());
+
+        btnExportarCache.setOnClickListener(v -> exportarBancoDeDados());
+
+        btnImportarCache.setOnClickListener(v -> importarBancoDeDados());
+    }
+
+    private void exportarBancoDeDados() {
+        try {
+            JSONObject cache = NetworkUtils.carregarCache(this);
+            File exportado = new File(getCacheDir(), "mac_cache_export.json");
+            FileOutputStream fos = new FileOutputStream(exportado);
+            fos.write(cache.toString(2).getBytes(StandardCharsets.UTF_8));
+            fos.close();
+
+            Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", exportado);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Exportar banco de dados"));
+        } catch (Exception e) {
+            Toast.makeText(this, "Erro ao exportar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void importarBancoDeDados() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        startActivityForResult(intent, REQUEST_CODE_IMPORTAR);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_IMPORTAR && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Importar banco de dados")
+                    .setMessage("Isso SUBSTITUI todos os dispositivos salvos atualmente pelo conteúdo do arquivo escolhido. Deseja continuar?")
+                    .setPositiveButton("Sim, importar", (dialog, which) -> processarArquivoImportado(data.getData()))
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        }
+    }
+
+    private void processarArquivoImportado(Uri uri) {
+        try (InputStream is = getContentResolver().openInputStream(uri)) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] chunk = new byte[4096];
+            int bytesLidos;
+            while ((bytesLidos = is.read(chunk)) != -1) {
+                buffer.write(chunk, 0, bytesLidos);
+            }
+            String conteudo = buffer.toString("UTF-8");
+            JSONObject novoCache = new JSONObject(conteudo); // valida que é um JSON válido antes de gravar
+
+            if (NetworkUtils.salvarCache(this, novoCache)) {
+                Toast.makeText(this, "Banco de dados importado com sucesso!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Falha ao salvar os dados importados.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Arquivo inválido ou erro ao importar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void confirmarAlteracaoDePin() {
@@ -217,6 +292,9 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
         atualizarPermissaoLocalizacaoUi();
         atualizarStatusNotificacoes();
+        // O Radar de Dispositivos agora também liga/desliga esse mesmo serviço,
+        // então sincroniza o switch aqui pra refletir o estado real.
+        switchMdns.setChecked(prefs.getBoolean("mdns_continuous", false));
     }
 
     private void atualizarPermissaoLocalizacaoUi() {
