@@ -32,5 +32,16 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
+        <Button
+            android:id="@+id/btnCopiarSenha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#2196F3"
+            android:text="📋 Copiar Senha"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,18 +1,46 @@
 package com.mtp.mytoolsproject;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import org.json.JSONObject;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Lê as senhas Wi-Fi salvas no sistema (via root) e mantém um backup próprio
+ * dentro do armazenamento do app. Isso resolve um problema real: quando o
+ * usuário manda "esquecer" uma rede no Android, o sistema apaga a senha do
+ * arquivo de configuração — e como esta tela sempre lia direto desse arquivo,
+ * a senha "sumia" também do app. Agora, toda vez que a tela é aberta, ela
+ * funde o que está ao vivo no sistema com o que já tinha sido salvo antes,
+ * então uma rede esquecida no Android continua aparecendo aqui (marcada como
+ * removida do sistema) — desde que o app já tivesse lido essa rede alguma vez
+ * ANTES dela ser esquecida.
+ */
 public class WifiPasswordsActivity extends AppCompatActivity {
+
+    private static final String ARQUIVO_BACKUP = "wifi_passwords_backup.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,69 +55,128 @@ public class WifiPasswordsActivity extends AppCompatActivity {
         LinearLayout container = findViewById(R.id.containerWifiCards);
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        // Leitura via root + parsing de XML movidos para fora da UI thread,
-        // pois antes rodavam de forma síncrona em onCreate() e podiam travar a tela.
         new Thread(() -> {
             try {
-                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml"});
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                StringBuilder fileContent = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    fileContent.append(line).append("\n");
+                Map<String, String> redesAoVivo = lerRedesAoVivo();
+
+                JSONObject backup = carregarBackup();
+                Set<String> chavesAoVivo = new HashSet<>(redesAoVivo.keySet());
+
+                long agora = System.currentTimeMillis();
+                for (Map.Entry<String, String> entry : redesAoVivo.entrySet()) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("senha", entry.getValue());
+                    obj.put("ultimaVez", agora);
+                    backup.put(entry.getKey(), obj);
                 }
-                process.waitFor();
+                salvarBackup(backup);
 
-                String xml = fileContent.toString();
-
-                if (xml.isEmpty()) {
-                    runOnUiThread(() -> adicionarCard(inflater, container, "❌ Erro", "Não foi possível ler o arquivo. Verifique o acesso Root."));
+                if (backup.length() == 0) {
+                    runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Aviso", "Nenhuma rede salva encontrada.", null, false));
                     return;
                 }
 
-                Pattern networkPattern = Pattern.compile("<Network>(.*?)</Network>", Pattern.DOTALL);
-                Matcher networkMatcher = networkPattern.matcher(xml);
+                Iterator<String> keys = backup.keys();
+                while (keys.hasNext()) {
+                    String ssid = keys.next();
+                    JSONObject obj = backup.getJSONObject(ssid);
+                    String senha = obj.optString("senha", "Sem senha / Aberta");
+                    boolean aindaNoSistema = chavesAoVivo.contains(ssid);
+                    String tituloExibido = aindaNoSistema ? ("🌐 " + ssid) : ("🗄️ " + ssid + " (removida do sistema, salva no app)");
+                    boolean temSenhaReal = !senha.equals("Sem senha / Aberta");
 
-                int count = 0;
-                while (networkMatcher.find()) {
-                    String netBlock = networkMatcher.group(1);
-
-                    String ssid = "Desconhecido";
-                    Matcher ssidMatcher = Pattern.compile("<string name=\"SSID\">&quot;(.*?)&quot;</string>").matcher(netBlock);
-                    if (ssidMatcher.find()) {
-                        String ssidBruto = ssidMatcher.group(1);
-                        ssid = android.text.Html.fromHtml(ssidBruto, android.text.Html.FROM_HTML_MODE_LEGACY).toString();
-                    }
-
-                    String password = "Sem senha / Aberta";
-                    Matcher passMatcher = Pattern.compile("<string name=\"PreSharedKey\">&quot;(.*?)&quot;</string>").matcher(netBlock);
-                    if (passMatcher.find()) {
-                        password = passMatcher.group(1);
-                    }
-
-                    count++;
-                    final String ssidFinal = ssid;
-                    final String passwordFinal = password;
-                    runOnUiThread(() -> adicionarCard(inflater, container, "🌐 " + ssidFinal, "🔑 Senha: " + passwordFinal));
-                }
-
-                if (count == 0) {
-                    runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Aviso", "Nenhuma rede salva encontrada no arquivo."));
+                    runOnUiThread(() -> adicionarCard(inflater, container, tituloExibido, "🔑 Senha: " + senha, senha, temSenhaReal));
                 }
 
             } catch (Exception e) {
-                runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Erro Root", String.valueOf(e.getMessage())));
+                runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Erro Root", String.valueOf(e.getMessage()), null, false));
             }
         }).start();
     }
 
-    private void adicionarCard(LayoutInflater inflater, LinearLayout container, String titulo, String subtitulo) {
+    private Map<String, String> lerRedesAoVivo() throws Exception {
+        Map<String, String> resultado = new HashMap<>();
+
+        Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat /data/misc/apexdata/com.android.wifi/WifiConfigStore.xml"});
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        StringBuilder fileContent = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            fileContent.append(line).append("\n");
+        }
+        process.waitFor();
+
+        String xml = fileContent.toString();
+        if (xml.isEmpty()) return resultado;
+
+        Pattern networkPattern = Pattern.compile("<Network>(.*?)</Network>", Pattern.DOTALL);
+        Matcher networkMatcher = networkPattern.matcher(xml);
+
+        while (networkMatcher.find()) {
+            String netBlock = networkMatcher.group(1);
+
+            String ssid = "Desconhecido";
+            Matcher ssidMatcher = Pattern.compile("<string name=\"SSID\">&quot;(.*?)&quot;</string>").matcher(netBlock);
+            if (ssidMatcher.find()) {
+                ssid = android.text.Html.fromHtml(ssidMatcher.group(1), android.text.Html.FROM_HTML_MODE_LEGACY).toString();
+            }
+
+            String password = "Sem senha / Aberta";
+            Matcher passMatcher = Pattern.compile("<string name=\"PreSharedKey\">&quot;(.*?)&quot;</string>").matcher(netBlock);
+            if (passMatcher.find()) {
+                password = passMatcher.group(1);
+            }
+
+            resultado.put(ssid, password);
+        }
+        return resultado;
+    }
+
+    private JSONObject carregarBackup() {
+        try {
+            File file = new File(getFilesDir(), ARQUIVO_BACKUP);
+            if (!file.exists()) return new JSONObject();
+            FileInputStream fis = new FileInputStream(file);
+            byte[] buffer = new byte[(int) file.length()];
+            fis.read(buffer);
+            fis.close();
+            String content = new String(buffer, StandardCharsets.UTF_8);
+            return content.startsWith("{") ? new JSONObject(content) : new JSONObject();
+        } catch (Exception e) {
+            return new JSONObject();
+        }
+    }
+
+    private void salvarBackup(JSONObject backup) {
+        try {
+            File file = new File(getFilesDir(), ARQUIVO_BACKUP);
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(backup.toString().getBytes(StandardCharsets.UTF_8));
+            fos.close();
+        } catch (Exception ignored) {}
+    }
+
+    private void adicionarCard(LayoutInflater inflater, LinearLayout container, String titulo, String subtitulo,
+                                String senhaParaCopiar, boolean mostrarBotaoCopiar) {
         View cardView = inflater.inflate(R.layout.card_item, container, false);
         TextView title = cardView.findViewById(R.id.txtCardTitle);
         TextView subtitle = cardView.findViewById(R.id.txtCardSubtitle);
+        Button btnCopiar = cardView.findViewById(R.id.btnCopiarSenha);
 
         title.setText(titulo);
         subtitle.setText(subtitulo);
+
+        if (mostrarBotaoCopiar && senhaParaCopiar != null) {
+            btnCopiar.setVisibility(View.VISIBLE);
+            btnCopiar.setOnClickListener(v -> {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText("Senha Wi-Fi", senhaParaCopiar));
+                Toast.makeText(WifiPasswordsActivity.this, "Senha copiada!", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            btnCopiar.setVisibility(View.GONE);
+        }
+
         container.addView(cardView);
     }
 }

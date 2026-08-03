@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <TextView
+        android:id="@+id/txtLockTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔒 My Tools Project"
+        android:textColor="#2196F3"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtLockSubtitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
+        android:text="Digite seu PIN"
+        android:textColor="#AAAAAA"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/editLockPin"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:hint="••••"
+        android:inputType="numberPassword"
+        android:maxLength="6"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#555555"
+        android:textSize="28sp"
+        android:letterSpacing="0.3"
+        android:backgroundTint="#2196F3" />
+
+    <Button
+        android:id="@+id/btnLockConfirmar"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#2196F3"
+        android:text="Confirmar"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnLockBiometria"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#1E1E1E"
+        android:text="👆 Usar biometria"
+        android:textColor="#2196F3" />
+
+</LinearLayout>

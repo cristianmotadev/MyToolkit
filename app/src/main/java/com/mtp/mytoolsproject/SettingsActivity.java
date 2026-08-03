@@ -19,9 +19,9 @@ import org.json.JSONObject;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private Switch switchMdns, switchLocationPermission, switchNotificarNovos;
+    private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
-    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao;
+    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin;
     private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp;
     private SharedPreferences prefs;
 
@@ -41,6 +41,8 @@ public class SettingsActivity extends AppCompatActivity {
         btnLimparCache = findViewById(R.id.btnLimparCache);
         btnVerificarRoot = findViewById(R.id.btnVerificarRoot);
         btnSalvarIntervalosPadrao = findViewById(R.id.btnSalvarIntervalosPadrao);
+        switchBloqueioApp = findViewById(R.id.switchBloqueioApp);
+        btnAlterarPin = findViewById(R.id.btnAlterarPin);
         txtStatusRoot = findViewById(R.id.txtStatusRoot);
         txtStatusNotificacao = findViewById(R.id.txtStatusNotificacao);
         txtVersaoApp = findViewById(R.id.txtVersaoApp);
@@ -64,6 +66,12 @@ public class SettingsActivity extends AppCompatActivity {
         atualizarPermissaoLocalizacaoUi();
         atualizarStatusNotificacoes();
         exibirVersaoApp();
+
+        switchBloqueioApp.setChecked(SecurityUtils.bloqueioAtivo(this));
+        switchBloqueioApp.setOnCheckedChangeListener((buttonView, isChecked) ->
+                SecurityUtils.definirBloqueioAtivo(this, isChecked));
+
+        btnAlterarPin.setOnClickListener(v -> confirmarAlteracaoDePin());
 
         btnSalvarIntervalo.setOnClickListener(v -> {
             try {
@@ -132,6 +140,28 @@ public class SettingsActivity extends AppCompatActivity {
         btnLimparCache.setOnClickListener(v -> confirmarLimpezaCache());
 
         btnVerificarRoot.setOnClickListener(v -> verificarRoot());
+    }
+
+    private void confirmarAlteracaoDePin() {
+        final EditText inputPinAtual = new EditText(this);
+        inputPinAtual.setHint("PIN atual");
+        inputPinAtual.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Alterar PIN")
+                .setMessage("Digite o PIN atual para continuar.")
+                .setView(inputPinAtual)
+                .setPositiveButton("Continuar", (dialog, which) -> {
+                    String pinDigitado = inputPinAtual.getText().toString().trim();
+                    if (SecurityUtils.validarPin(this, pinDigitado)) {
+                        SecurityUtils.removerPin(this);
+                        startActivity(new Intent(this, LockActivity.class));
+                    } else {
+                        Toast.makeText(this, "PIN incorreto.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     private void confirmarLimpezaCache() {

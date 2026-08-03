@@ -62,19 +62,19 @@ android {
 
     }
 
-    kotlin {
-
-        compilerOptions {
-
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-
-        }
-
-    }
-
     buildFeatures {
 
         compose = true
+
+    }
+
+}
+
+kotlin {
+
+    compilerOptions {
+
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
 
     }
 
@@ -103,6 +103,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
 
     implementation("com.google.android.material:material:1.11.0")
+
+    implementation("androidx.biometric:biometric:1.1.0")
 
 
 

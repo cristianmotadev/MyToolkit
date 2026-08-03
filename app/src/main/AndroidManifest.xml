@@ -28,18 +28,24 @@
         android:theme="@style/Theme.MyToolsProject"
         tools:targetApi="31">
 
-        <!-- Tela de Introdução (Splash) -->
+        <!-- Tela de Bloqueio (PIN/Biometria) — agora é a entrada do app -->
         <activity
-            android:name=".SplashActivity"
+            android:name=".LockActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyToolsProject"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/Theme.MyToolsProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Tela de Introdução (Splash) -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyToolsProject"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Tela Principal -->
         <activity

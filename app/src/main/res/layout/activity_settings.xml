@@ -320,6 +320,58 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- ================= SEGURANÇA DO APP ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SEGURANÇA DO APP"
+        android:textColor="#2196F3"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Switch
+                android:id="@+id/switchBloqueioApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Exigir PIN/Biometria ao abrir o app"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Protege as senhas Wi-Fi e os dados de rede salvos contra acesso por outras pessoas com o celular em mãos."
+                android:textColor="#AAAAAA"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/btnAlterarPin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="🔑 Alterar PIN"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <!-- ================= BANCO DE DADOS ================= -->
     <TextView
         android:layout_width="match_parent"
