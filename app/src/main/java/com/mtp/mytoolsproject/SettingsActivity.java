@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_IMPORTAR = 301;
 
     private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
+    private RadioGroup radioGroupTema;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
     private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache;
     private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp;
@@ -57,6 +60,21 @@ public class SettingsActivity extends AppCompatActivity {
         txtStatusRoot = findViewById(R.id.txtStatusRoot);
         txtStatusNotificacao = findViewById(R.id.txtStatusNotificacao);
         txtVersaoApp = findViewById(R.id.txtVersaoApp);
+        radioGroupTema = findViewById(R.id.radioGroupTema);
+
+        String modoAtual = ThemeUtils.modoSalvo(this);
+        int idSelecionado = modoAtual.equals("claro") ? R.id.radioTemaClaro
+                : modoAtual.equals("sistema") ? R.id.radioTemaSistema
+                  : R.id.radioTemaEscuro;
+        radioGroupTema.check(idSelecionado);
+
+        radioGroupTema.setOnCheckedChangeListener((group, checkedId) -> {
+            String novoModo = checkedId == R.id.radioTemaClaro ? "claro"
+                    : checkedId == R.id.radioTemaSistema ? "sistema"
+                      : "escuro";
+            ThemeUtils.definirModo(this, novoModo);
+            recreate(); // reaplica o tema imediatamente nesta tela
+        });
 
         prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
 

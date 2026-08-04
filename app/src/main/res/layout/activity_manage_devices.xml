@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#121212">
+    android:background="@color/colorBackground">
 
     <TextView
         android:layout_width="match_parent"
@@ -12,8 +12,19 @@
         android:text="🛠️ Dispositivos Salvos no Cache"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:paddingBottom="16dp"/>
+        android:textColor="@color/colorTextPrimary"
+        android:paddingBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/editBuscaDispositivos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@color/colorSurface"
+        android:hint="🔍 Buscar por nome, MAC, IP ou fabricante"
+        android:padding="12dp"
+        android:textColor="@color/colorTextPrimary"
+        android:textColorHint="@color/colorTextHint" />
 
     <!-- ScrollView para listar os aparelhos dinamicamente -->
     <ScrollView

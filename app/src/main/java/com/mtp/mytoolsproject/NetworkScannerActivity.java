@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Varredura manual/pontual de dispositivos na rede local (mostra os cards em
@@ -40,6 +43,8 @@ public class NetworkScannerActivity extends AppCompatActivity {
     private Switch switchAutoScan;
     private EditText editIntervalo;
     private TextView txtAviso;
+    private ProgressBar progressBar;
+    private TextView txtProgresso;
     private SharedPreferences prefs;
 
     private volatile boolean varreduraEmAndamento = false;
@@ -54,6 +59,8 @@ public class NetworkScannerActivity extends AppCompatActivity {
         switchAutoScan = findViewById(R.id.switchAutoScanNetwork);
         editIntervalo = findViewById(R.id.editIntervaloNetwork);
         txtAviso = findViewById(R.id.txtAvisoIntervaloNetwork);
+        progressBar = findViewById(R.id.progressBarNetworkScan);
+        txtProgresso = findViewById(R.id.txtProgressoNetworkScan);
         prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
 
         int intervaloSalvo = prefs.getInt("intervalo_segundos", prefs.getInt("network_scan_intervalo_padrao", 90));
@@ -148,6 +155,10 @@ public class NetworkScannerActivity extends AppCompatActivity {
         String prefixoRede = NetworkUtils.descobrirPrefixoRedeLocal();
         Toast.makeText(this, "Varrendo " + prefixoRede + "0/24 e salvando no JSON...", Toast.LENGTH_SHORT).show();
 
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setIndeterminate(true);
+        txtProgresso.setText("Enviando pings e lendo tabela ARP...");
+
         new Thread(() -> {
             try {
                 for (int i = 1; i < 255; i++) {
@@ -166,10 +177,8 @@ public class NetworkScannerActivity extends AppCompatActivity {
                 String line;
                 boolean firstLine = true;
 
-                JSONObject cache = NetworkUtils.carregarCache(this);
-                boolean houveMudanca = false;
-                String nomeRedeAtual = NetworkUtils.obterNomeRedeWifi(this);
-
+                // Primeiro lê e filtra todas as entradas válidas, pra saber o total antes de processar
+                List<String[]> entradasValidas = new ArrayList<>();
                 while ((line = br.readLine()) != null) {
                     if (firstLine) {
                         firstLine = false;
@@ -177,58 +186,76 @@ public class NetworkScannerActivity extends AppCompatActivity {
                     }
                     String[] tokens = line.split("\\s+");
                     if (tokens.length >= 4) {
-                        final String ip = tokens[0];
-                        final String mac = tokens[3];
+                        String ip = tokens[0];
+                        String mac = tokens[3];
+                        if (mac == null || mac.equals("00:00:00:00:00:00") || mac.contains("00:00:00")) continue;
+                        entradasValidas.add(new String[]{ip, mac.toUpperCase()});
+                    }
+                }
+                br.close();
+                process.waitFor();
 
-                        if (mac == null || mac.equals("00:00:00:00:00:00") || mac.contains("00:00:00")) {
-                            continue;
-                        }
+                int total = entradasValidas.size();
+                runOnUiThread(() -> {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setMax(Math.max(total, 1));
+                    progressBar.setProgress(0);
+                    txtProgresso.setText("0/" + total + " dispositivos processados");
+                });
 
-                        final String macKey = mac.toUpperCase();
-                        final String apelidoPadrao = "Novo Aparelho (" + ip + ")";
+                JSONObject cache = NetworkUtils.carregarCache(this);
+                boolean houveMudanca = false;
+                String nomeRedeAtual = NetworkUtils.obterNomeRedeWifi(this);
 
-                        String fabricante = NetworkUtils.consultarFabricante(macKey);
-                        String statusPortas = NetworkUtils.verificarPortasComuns(ip);
+                for (int idx = 0; idx < entradasValidas.size(); idx++) {
+                    String ip = entradasValidas.get(idx)[0];
+                    String macKey = entradasValidas.get(idx)[1];
+                    final String apelidoPadrao = "Novo Aparelho (" + ip + ")";
 
-                        JSONObject obj;
-                        if (cache.has(macKey)) {
-                            obj = cache.getJSONObject(macKey);
-                            obj.put("fabricante", fabricante);
-                            obj.put("rede_wifi", nomeRedeAtual);
-                            obj.put("ip", ip);
-                            obj.put("portas", statusPortas);
-                            obj.put("ultimaVez", System.currentTimeMillis());
-                        } else {
-                            obj = new JSONObject();
-                            obj.put("apelido", apelidoPadrao);
-                            obj.put("fabricante", fabricante);
-                            obj.put("ip", ip);
-                            obj.put("rede_wifi", nomeRedeAtual);
-                            obj.put("portas", statusPortas);
-                            obj.put("ultimaVez", System.currentTimeMillis());
-                            cache.put(macKey, obj);
-                        }
-                        houveMudanca = true;
+                    String fabricante = NetworkUtils.consultarFabricante(macKey);
+                    String statusPortas = NetworkUtils.verificarPortasComuns(ip);
 
-                        final String fabricanteFinal = fabricante;
-                        final String redeFinal = nomeRedeAtual;
-                        final String portasFinal = statusPortas;
+                    JSONObject obj;
+                    if (cache.has(macKey)) {
+                        obj = cache.getJSONObject(macKey);
+                        obj.put("fabricante", fabricante);
+                        obj.put("rede_wifi", nomeRedeAtual);
+                        obj.put("ip", ip);
+                        obj.put("portas", statusPortas);
+                        obj.put("ultimaVez", System.currentTimeMillis());
+                    } else {
+                        obj = new JSONObject();
+                        obj.put("apelido", apelidoPadrao);
+                        obj.put("fabricante", fabricante);
+                        obj.put("ip", ip);
+                        obj.put("rede_wifi", nomeRedeAtual);
+                        obj.put("portas", statusPortas);
+                        obj.put("ultimaVez", System.currentTimeMillis());
+                        cache.put(macKey, obj);
+                    }
+                    houveMudanca = true;
 
-                        runOnUiThread(() -> adicionarCardRetornavel(
+                    final String fabricanteFinal = fabricante;
+                    final String redeFinal = nomeRedeAtual;
+                    final String portasFinal = statusPortas;
+                    final int concluidos = idx + 1;
+
+                    runOnUiThread(() -> {
+                        progressBar.setProgress(concluidos);
+                        txtProgresso.setText(concluidos + "/" + total + " dispositivos processados");
+                        adicionarCardRetornavel(
                                 inflater,
                                 containerNetworkCards,
                                 apelidoPadrao,
                                 "📍 IP: " + ip + "\n🔗 MAC: " + macKey + "\n🏷️ Marca: " + fabricanteFinal
                                         + "\n📶 Rede: " + redeFinal + "\n🔌 Portas: " + portasFinal
-                        ));
+                        );
+                    });
 
-                        try {
-                            Thread.sleep(2500);
-                        } catch (InterruptedException ignored) {}
-                    }
+                    try {
+                        Thread.sleep(2500);
+                    } catch (InterruptedException ignored) {}
                 }
-                br.close();
-                process.waitFor();
 
                 if (houveMudanca) {
                     NetworkUtils.salvarCache(this, cache);
@@ -236,16 +263,22 @@ public class NetworkScannerActivity extends AppCompatActivity {
 
                 final boolean encontrouAlgo = houveMudanca;
                 runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
                     if (containerNetworkCards.getChildCount() == 0) {
                         adicionarCard(inflater, containerNetworkCards, "⚠️ Aviso", "Nenhum dispositivo encontrado na rede.");
+                        txtProgresso.setText("Nenhum dispositivo encontrado.");
                     } else if (encontrouAlgo) {
+                        txtProgresso.setText("Varredura concluída: " + total + " dispositivo(s) processado(s).");
                         Toast.makeText(NetworkScannerActivity.this, "Varredura e dados salvos no JSON com sucesso!", Toast.LENGTH_SHORT).show();
                     }
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> adicionarCard(inflater, containerNetworkCards, "⚠️ Erro", String.valueOf(e.getMessage())));
+                runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    adicionarCard(inflater, containerNetworkCards, "⚠️ Erro", String.valueOf(e.getMessage()));
+                });
             } finally {
                 varreduraEmAndamento = false;
             }

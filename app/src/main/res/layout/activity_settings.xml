@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    android:background="@color/colorBackground">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -17,15 +17,15 @@
         android:text="⚙️ Configurações"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorTextPrimary"
         android:paddingBottom="16dp"/>
 
-    <!-- ================= STATUS DO SISTEMA ================= -->
+    <!-- ================= APARÊNCIA ================= -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="STATUS DO SISTEMA"
-        android:textColor="#2196F3"
+        android:text="APARÊNCIA"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -34,7 +34,75 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Tema do aplicativo:"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupTema"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioTemaEscuro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="🌙 Escuro"
+                    android:textColor="@color/colorTextPrimary"/>
+
+                <RadioButton
+                    android:id="@+id/radioTemaClaro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="☀️ Claro"
+                    android:textColor="@color/colorTextPrimary"/>
+
+                <RadioButton
+                    android:id="@+id/radioTemaSistema"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="📱 Sistema"
+                    android:textColor="@color/colorTextPrimary"/>
+            </RadioGroup>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= STATUS DO SISTEMA ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="STATUS DO SISTEMA"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
@@ -59,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:text="Toque no botão acima para verificar."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="13sp"/>
 
             <View
@@ -67,14 +135,14 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="14dp"
                 android:layout_marginBottom="10dp"
-                android:background="#333333"/>
+                android:background="@color/colorDivider"/>
 
             <TextView
                 android:id="@+id/txtStatusNotificacao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Verificando permissão de notificações..."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="13sp"/>
 
             <View
@@ -82,14 +150,14 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="14dp"
                 android:layout_marginBottom="10dp"
-                android:background="#333333"/>
+                android:background="@color/colorDivider"/>
 
             <TextView
                 android:id="@+id/txtVersaoApp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="My Tools Project"
-                android:textColor="#777777"
+                android:textColor="@color/colorTextHint"
                 android:textSize="12sp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -99,7 +167,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="MONITORAMENTO EM SEGUNDO PLANO (mDNS)"
-        android:textColor="#2196F3"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -108,7 +176,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
@@ -123,7 +191,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Escaneamento contínuo (segundo plano)"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/colorTextPrimary"
                 android:textSize="15sp"/>
 
             <TextView
@@ -131,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Deixa a escuta ativa para capturar o nome de aparelhos que saem do modo de economia de energia."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"/>
 
             <LinearLayout
@@ -146,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Intervalo de escaneamento (segundos):"
-                    android:textColor="#CCCCCC"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="13sp"/>
 
                 <EditText
@@ -155,15 +223,15 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:text="30"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#2196F3"/>
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
 
                 <Button
                     android:id="@+id/btnSalvarIntervalo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="OK"
-                    android:backgroundTint="#2196F3"
+                    android:backgroundTint="@color/colorPrimary"
                     android:textColor="#FFFFFF"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
@@ -173,14 +241,14 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="10dp"
-                android:background="#333333"/>
+                android:background="@color/colorDivider"/>
 
             <Switch
                 android:id="@+id/switchNotificarNovos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Notificar ao encontrar dispositivo novo"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/colorTextPrimary"
                 android:textSize="15sp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -190,7 +258,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PERMISSÕES"
-        android:textColor="#2196F3"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -199,7 +267,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
@@ -214,7 +282,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Permissão de localização (Wi-Fi)"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/colorTextPrimary"
                 android:textSize="15sp"/>
 
             <TextView
@@ -222,7 +290,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Necessário para o Android ler o nome da rede Wi-Fi atual e escanear redes próximas."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -232,7 +300,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="INTERVALOS PADRÃO DOS SCANNERS"
-        android:textColor="#2196F3"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -241,7 +309,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
@@ -255,7 +323,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Define o valor inicial do modo automático nas telas de Redes Wi-Fi Próximas e Dispositivos na Rede."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"
                 android:paddingBottom="10dp"/>
 
@@ -270,7 +338,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="📡 Redes Wi-Fi Próximas (s):"
-                    android:textColor="#CCCCCC"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="13sp"/>
 
                 <EditText
@@ -279,8 +347,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:text="30"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#2196F3"/>
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
             </LinearLayout>
 
             <LinearLayout
@@ -295,7 +363,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="🌐 Dispositivos na Rede (s):"
-                    android:textColor="#CCCCCC"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="13sp"/>
 
                 <EditText
@@ -304,8 +372,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:text="90"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#2196F3"/>
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
             </LinearLayout>
 
             <Button
@@ -314,7 +382,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Salvar Intervalos Padrão"
-                android:backgroundTint="#2196F3"
+                android:backgroundTint="@color/colorPrimary"
                 android:textColor="#FFFFFF"
                 android:padding="10dp"/>
         </LinearLayout>
@@ -325,7 +393,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SEGURANÇA DO APP"
-        android:textColor="#2196F3"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -334,7 +402,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
@@ -349,7 +417,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Exigir PIN/Biometria ao abrir o app"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/colorTextPrimary"
                 android:textSize="15sp"/>
 
             <TextView
@@ -357,7 +425,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Protege as senhas Wi-Fi e os dados de rede salvos contra acesso por outras pessoas com o celular em mãos."
-                android:textColor="#AAAAAA"
+                android:textColor="@color/colorTextSecondary"
                 android:textSize="12sp"/>
 
             <Button
@@ -377,7 +445,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="BANCO DE DADOS (JSON)"
-        android:textColor="#2196F3"
+        android:textColor="@color/colorPrimary"
         android:textSize="13sp"
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
@@ -386,7 +454,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
