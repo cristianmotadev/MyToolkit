@@ -156,9 +156,46 @@
                 android:id="@+id/txtVersaoApp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="My Tools Project"
+                android:text="My Toolkit"
                 android:textColor="@color/colorTextHint"
                 android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/btnVerificarAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🔄 Verificar Atualizações"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <TextView
+                android:id="@+id/txtStatusAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <TextView
+                android:id="@+id/txtDesenvolvidoPor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👨‍💻 Desenvolvido por @cristianmotadev"
+                android:textColor="@color/colorPrimary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

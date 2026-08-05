@@ -33,8 +33,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
     private RadioGroup radioGroupTema;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
-    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache;
-    private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp;
+    private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache, btnVerificarAtualizacao;
+    private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp, txtStatusAtualizacao;
     private SharedPreferences prefs;
 
     @Override
@@ -60,18 +60,24 @@ public class SettingsActivity extends AppCompatActivity {
         txtStatusRoot = findViewById(R.id.txtStatusRoot);
         txtStatusNotificacao = findViewById(R.id.txtStatusNotificacao);
         txtVersaoApp = findViewById(R.id.txtVersaoApp);
+        btnVerificarAtualizacao = findViewById(R.id.btnVerificarAtualizacao);
+        txtStatusAtualizacao = findViewById(R.id.txtStatusAtualizacao);
+
+        TextView txtDesenvolvidoPor = findViewById(R.id.txtDesenvolvidoPor);
+        txtDesenvolvidoPor.setOnClickListener(v ->
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/cristianmotadev"))));
         radioGroupTema = findViewById(R.id.radioGroupTema);
 
         String modoAtual = ThemeUtils.modoSalvo(this);
         int idSelecionado = modoAtual.equals("claro") ? R.id.radioTemaClaro
                 : modoAtual.equals("sistema") ? R.id.radioTemaSistema
-                  : R.id.radioTemaEscuro;
+                : R.id.radioTemaEscuro;
         radioGroupTema.check(idSelecionado);
 
         radioGroupTema.setOnCheckedChangeListener((group, checkedId) -> {
             String novoModo = checkedId == R.id.radioTemaClaro ? "claro"
                     : checkedId == R.id.radioTemaSistema ? "sistema"
-                      : "escuro";
+                    : "escuro";
             ThemeUtils.definirModo(this, novoModo);
             recreate(); // reaplica o tema imediatamente nesta tela
         });
@@ -169,6 +175,8 @@ public class SettingsActivity extends AppCompatActivity {
         btnLimparCache.setOnClickListener(v -> confirmarLimpezaCache());
 
         btnVerificarRoot.setOnClickListener(v -> verificarRoot());
+
+        btnVerificarAtualizacao.setOnClickListener(v -> verificarAtualizacaoManual());
 
         btnExportarCache.setOnClickListener(v -> exportarBancoDeDados());
 
@@ -269,6 +277,33 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
     }
 
+    private void verificarAtualizacaoManual() {
+        txtStatusAtualizacao.setText("⏳ Verificando...");
+        new Thread(() -> {
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this);
+            runOnUiThread(() -> {
+                if (resultado.mensagemErro != null) {
+                    txtStatusAtualizacao.setText("❌ " + resultado.mensagemErro);
+                    txtStatusAtualizacao.setTextColor(0xFFFF5252);
+                } else if (resultado.temAtualizacao) {
+                    txtStatusAtualizacao.setText("🎉 Nova versão disponível: " + resultado.versaoDisponivel
+                            + " (você tem a " + resultado.versaoAtual + ")");
+                    txtStatusAtualizacao.setTextColor(0xFF4CAF50);
+                    new AlertDialog.Builder(this)
+                            .setTitle("🎉 Nova atualização disponível")
+                            .setMessage("Versão " + resultado.versaoDisponivel + " disponível no GitHub.")
+                            .setPositiveButton("Ver no GitHub", (dialog, which) ->
+                                    startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultado.urlDaRelease))))
+                            .setNegativeButton("Fechar", null)
+                            .show();
+                } else {
+                    txtStatusAtualizacao.setText("✅ Você já está na versão mais recente (" + resultado.versaoAtual + ").");
+                    txtStatusAtualizacao.setTextColor(0xFF4CAF50);
+                }
+            });
+        }).start();
+    }
+
     private void verificarRoot() {
         txtStatusRoot.setText("⏳ Verificando...");
         new Thread(() -> {
@@ -288,9 +323,9 @@ public class SettingsActivity extends AppCompatActivity {
     private void exibirVersaoApp() {
         try {
             String versao = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            txtVersaoApp.setText("My Tools Project — versão " + versao);
+            txtVersaoApp.setText("My Toolkit — versão " + versao);
         } catch (Exception e) {
-            txtVersaoApp.setText("My Tools Project");
+            txtVersaoApp.setText("My Toolkit");
         }
     }
 

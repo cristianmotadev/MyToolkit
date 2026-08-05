@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="🔎 Consulta DNS"
+        android:textColor="#2196F3"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="Digite um domínio (busca A/AAAA/MX/TXT/NS/CNAME) ou um IP (busca reversa)"
+        android:textColor="#AAAAAA"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/editDnsDominio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="#1E1E1E"
+        android:hint="dominio.com ou 8.8.8.8"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <Button
+        android:id="@+id/btnConsultarDns"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#2196F3"
+        android:text="🔍 Consultar"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#1A1A1A"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/txtDnsLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#CCCCCC"
+            android:textSize="13sp" />
+    </ScrollView>
+
+</LinearLayout>

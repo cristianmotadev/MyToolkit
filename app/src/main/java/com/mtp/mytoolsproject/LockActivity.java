@@ -78,7 +78,7 @@ public class LockActivity extends AppCompatActivity {
                 btnBiometria.setVisibility(android.view.View.GONE);
                 break;
             case DESBLOQUEAR:
-                txtTitulo.setText("🔒 My Tools Project");
+                txtTitulo.setText("🔒 My Toolkit");
                 txtSubtitulo.setText("Digite seu PIN ou use a biometria.");
                 btnBiometria.setVisibility(biometriaDisponivel() ? android.view.View.VISIBLE : android.view.View.GONE);
                 break;
@@ -93,7 +93,7 @@ public class LockActivity extends AppCompatActivity {
 
     private void mostrarPromptBiometrico() {
         BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Desbloquear My Tools Project")
+                .setTitle("Desbloquear My Toolkit")
                 .setSubtitle("Use sua digital ou rosto cadastrado")
                 .setNegativeButtonText("Usar PIN")
                 .build();

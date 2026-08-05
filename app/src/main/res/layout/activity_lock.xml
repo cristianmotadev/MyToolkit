@@ -11,7 +11,7 @@
         android:id="@+id/txtLockTitulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🔒 My Tools Project"
+        android:text="🔒 My Toolkit"
         android:textColor="#2196F3"
         android:textSize="24sp"
         android:textStyle="bold" />

@@ -13,6 +13,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" tools:ignore="ForegroundServicePermission" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.NFC" />
+
+    <!-- Bluetooth clássico (Android 11 e anteriores) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- Bluetooth (Android 12+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <!-- Necessário para a Auditoria de Apps enxergar todos os pacotes instalados no Android 11+ -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="false" />
@@ -92,6 +103,31 @@
         <!-- Ferramenta: Teste de Velocidade -->
         <activity
             android:name=".SpeedTestActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Radar Bluetooth -->
+        <activity
+            android:name=".BluetoothScannerActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Traceroute -->
+        <activity
+            android:name=".TracerouteActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Consulta DNS -->
+        <activity
+            android:name=".DnsLookupActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Informações do Sistema -->
+        <activity
+            android:name=".SystemInfoActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Auditoria de Apps Instalados -->
+        <activity
+            android:name=".AppAuditActivity"
             android:exported="false" />
 
         <!-- Tela do Banco de Dados JSON -->
