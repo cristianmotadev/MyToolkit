@@ -66,6 +66,9 @@ public class SettingsActivity extends AppCompatActivity {
         TextView txtDesenvolvidoPor = findViewById(R.id.txtDesenvolvidoPor);
         txtDesenvolvidoPor.setOnClickListener(v ->
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/cristianmotadev"))));
+
+        Button btnVerTutorial = findViewById(R.id.btnVerTutorial);
+        btnVerTutorial.setOnClickListener(v -> startActivity(new Intent(this, OnboardingActivity.class)));
         radioGroupTema = findViewById(R.id.radioGroupTema);
 
         String modoAtual = ThemeUtils.modoSalvo(this);

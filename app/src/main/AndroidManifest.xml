@@ -59,6 +59,11 @@
             android:theme="@style/Theme.MyToolsProject"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Tutorial de primeira abertura -->
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
+
         <!-- Tela Principal -->
         <activity
             android:name=".MainActivity"

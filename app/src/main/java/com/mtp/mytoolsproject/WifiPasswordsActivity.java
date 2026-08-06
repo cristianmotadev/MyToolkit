@@ -1,13 +1,16 @@
 package com.mtp.mytoolsproject;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,7 +75,7 @@ public class WifiPasswordsActivity extends AppCompatActivity {
                 salvarBackup(backup);
 
                 if (backup.length() == 0) {
-                    runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Aviso", "Nenhuma rede salva encontrada.", null, false));
+                    runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Aviso", "Nenhuma rede salva encontrada.", null, null, false));
                     return;
                 }
 
@@ -85,11 +88,11 @@ public class WifiPasswordsActivity extends AppCompatActivity {
                     String tituloExibido = aindaNoSistema ? ("🌐 " + ssid) : ("🗄️ " + ssid + " (removida do sistema, salva no app)");
                     boolean temSenhaReal = !senha.equals("Sem senha / Aberta");
 
-                    runOnUiThread(() -> adicionarCard(inflater, container, tituloExibido, "🔑 Senha: " + senha, senha, temSenhaReal));
+                    runOnUiThread(() -> adicionarCard(inflater, container, tituloExibido, "🔑 Senha: " + senha, ssid, senha, temSenhaReal));
                 }
 
             } catch (Exception e) {
-                runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Erro Root", String.valueOf(e.getMessage()), null, false));
+                runOnUiThread(() -> adicionarCard(inflater, container, "⚠️ Erro Root", String.valueOf(e.getMessage()), null, null, false));
             }
         }).start();
     }
@@ -157,11 +160,13 @@ public class WifiPasswordsActivity extends AppCompatActivity {
     }
 
     private void adicionarCard(LayoutInflater inflater, LinearLayout container, String titulo, String subtitulo,
-                                String senhaParaCopiar, boolean mostrarBotaoCopiar) {
+                                String ssid, String senhaParaCopiar, boolean mostrarBotaoCopiar) {
         View cardView = inflater.inflate(R.layout.card_item, container, false);
         TextView title = cardView.findViewById(R.id.txtCardTitle);
         TextView subtitle = cardView.findViewById(R.id.txtCardSubtitle);
         Button btnCopiar = cardView.findViewById(R.id.btnCopiarSenha);
+        Button btnQrCode = cardView.findViewById(R.id.btnGerarQrWifi);
+        Button btnCompartilharTexto = cardView.findViewById(R.id.btnCompartilharTexto);
 
         title.setText(titulo);
         subtitle.setText(subtitulo);
@@ -177,6 +182,72 @@ public class WifiPasswordsActivity extends AppCompatActivity {
             btnCopiar.setVisibility(View.GONE);
         }
 
+        if (ssid != null) {
+            btnQrCode.setVisibility(View.VISIBLE);
+            btnQrCode.setOnClickListener(v -> mostrarDialogoQrCode(ssid, senhaParaCopiar));
+
+            btnCompartilharTexto.setVisibility(View.VISIBLE);
+            btnCompartilharTexto.setOnClickListener(v -> compartilharComoTexto(ssid, senhaParaCopiar));
+        } else {
+            btnQrCode.setVisibility(View.GONE);
+            btnCompartilharTexto.setVisibility(View.GONE);
+        }
+
         container.addView(cardView);
+    }
+
+    /** Gera e mostra um QR Code que outros aparelhos podem escanear para conectar direto à rede. */
+    private void mostrarDialogoQrCode(String ssid, String senha) {
+        try {
+            String conteudo = QrCodeUtils.montarStringWifiQr(ssid, senha);
+            Bitmap bitmap = QrCodeUtils.gerarQrCode(conteudo, 600);
+
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            int padding = (int) (24 * getResources().getDisplayMetrics().density);
+            imageView.setPadding(padding, padding, padding, padding);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("📷 " + ssid)
+                    .setView(imageView)
+                    .setMessage("Aponte a câmera de outro celular pra esse QR Code pra conectar direto na rede, ou compartilhe a imagem por qualquer app.")
+                    .setPositiveButton("Fechar", null)
+                    .setNeutralButton("📤 Compartilhar", (dialog, which) -> compartilharQrCode(bitmap, ssid))
+                    .show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Não foi possível gerar o QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Compartilha o nome da rede e a senha como texto simples, via qualquer app (WhatsApp, SMS, e-mail...). */
+    private void compartilharComoTexto(String ssid, String senha) {
+        String texto = "📶 Rede Wi-Fi: " + ssid + "\n🔑 Senha: " + senha;
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, texto);
+        startActivity(android.content.Intent.createChooser(intent, "Compartilhar rede Wi-Fi"));
+    }
+
+    /** Salva o QR Code como imagem e abre o menu de compartilhamento do Android (WhatsApp, e-mail, Bluetooth, etc). */
+    private void compartilharQrCode(Bitmap bitmap, String ssid) {
+        try {
+            String nomeArquivo = "qrcode_wifi_" + ssid.replaceAll("[^a-zA-Z0-9]", "_") + ".png";
+            File arquivo = new File(getCacheDir(), nomeArquivo);
+            FileOutputStream fos = new FileOutputStream(arquivo);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+
+            android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                    this, getPackageName() + ".fileprovider", arquivo);
+
+            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+            intent.setType("image/png");
+            intent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, "QR Code para conectar na rede Wi-Fi: " + ssid);
+            intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(android.content.Intent.createChooser(intent, "Compartilhar QR Code"));
+        } catch (Exception e) {
+            Toast.makeText(this, "Erro ao compartilhar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.mtp.mytoolsproject;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -19,11 +20,15 @@ public class SplashActivity extends AppCompatActivity {
         fadeIn.setDuration(1200);
         layout.startAnimation(fadeIn);
 
-        // Tempo de transição para a tela principal
+        // Tempo de transição para a próxima tela
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                SharedPreferences prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
+                boolean onboardingConcluido = prefs.getBoolean("onboarding_concluido", false);
+
+                Class<?> proximaTela = onboardingConcluido ? MainActivity.class : OnboardingActivity.class;
+                startActivity(new Intent(SplashActivity.this, proximaTela));
                 finish();
             }
         }, 2200);

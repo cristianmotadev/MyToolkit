@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,8 @@ public class ManageDevicesActivity extends AppCompatActivity {
 
         containerSavedDevices = findViewById(R.id.containerSavedDevices);
         editBusca = findViewById(R.id.editBuscaDispositivos);
+        Button btnExportarPdf = findViewById(R.id.btnExportarRelatorioPdf);
+        btnExportarPdf.setOnClickListener(v -> exportarRelatorioPdf());
 
         editBusca.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -48,6 +51,56 @@ public class ManageDevicesActivity extends AppCompatActivity {
         });
 
         carregarListaDispositivos();
+    }
+
+    private void exportarRelatorioPdf() {
+        Toast.makeText(this, "Gerando PDF...", Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            try {
+                JSONObject cache = NetworkUtils.carregarCache(this);
+                TreeMap<String, List<String>> grupos = new TreeMap<>();
+                Iterator<String> keys = cache.keys();
+                int total = 0;
+
+                while (keys.hasNext()) {
+                    String mac = keys.next();
+                    JSONObject obj = cache.optJSONObject(mac);
+                    if (obj == null) continue;
+                    String redeWifi = obj.optString("rede_wifi", "Desconhecida");
+                    grupos.computeIfAbsent(redeWifi, k -> new ArrayList<>()).add(mac);
+                    total++;
+                }
+
+                List<String> linhas = new ArrayList<>();
+                linhas.add("Total de dispositivos: " + total);
+                linhas.add("");
+
+                for (String rede : grupos.keySet()) {
+                    linhas.add("REDE: " + rede);
+                    for (String mac : grupos.get(rede)) {
+                        JSONObject obj = cache.optJSONObject(mac);
+                        if (obj == null) continue;
+                        String apelido = obj.optString("apelido", "Dispositivo sem apelido");
+                        String fabricante = obj.optString("fabricante", "Desconhecida");
+                        String ip = obj.optString("ip", "-");
+                        String portas = obj.optString("portas", "-");
+                        String ultimaVez = NetworkUtils.formatarTempoRelativo(obj.optLong("ultimaVez", 0));
+
+                        linhas.add("  • " + apelido + " (" + mac + ")");
+                        linhas.add("     IP: " + ip + " | Fabricante: " + fabricante);
+                        linhas.add("     Portas: " + portas + " | " + ultimaVez);
+                    }
+                    linhas.add("");
+                }
+
+                File pdf = ReportUtils.gerarRelatorioPdf(this, "relatorio_dispositivos.pdf", "Relatório de Dispositivos na Rede", linhas);
+                runOnUiThread(() -> ReportUtils.compartilharPdf(this, pdf));
+
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Erro ao gerar PDF: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 
     private void carregarListaDispositivos() {

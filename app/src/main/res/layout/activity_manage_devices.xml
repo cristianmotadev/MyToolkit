@@ -26,6 +26,15 @@
         android:textColor="@color/colorTextPrimary"
         android:textColorHint="@color/colorTextHint" />
 
+    <Button
+        android:id="@+id/btnExportarRelatorioPdf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#43A047"
+        android:text="📄 Exportar Relatório PDF"
+        android:textColor="#FFFFFF" />
+
     <!-- ScrollView para listar os aparelhos dinamicamente -->
     <ScrollView
         android:layout_width="match_parent"

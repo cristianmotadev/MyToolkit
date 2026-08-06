@@ -186,6 +186,22 @@
                 android:layout_marginBottom="10dp"
                 android:background="@color/colorDivider"/>
 
+            <Button
+                android:id="@+id/btnVerTutorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📘 Ver Tutorial Novamente"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
             <TextView
                 android:id="@+id/txtDesenvolvidoPor"
                 android:layout_width="match_parent"
