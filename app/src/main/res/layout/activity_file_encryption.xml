@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="🔐 Criptografar Arquivo"
+        android:textColor="#2196F3"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btnEscolherArquivoCripto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="#1E88E5"
+        android:text="📄 Escolher Arquivo"
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/txtArquivoSelecionadoCripto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Nenhum arquivo selecionado."
+        android:textColor="#AAAAAA"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/editSenhaCripto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="#1E1E1E"
+        android:hint="Senha"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCriptografar"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:backgroundTint="#43A047"
+            android:text="🔒 Criptografar"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnDescriptografar"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:backgroundTint="#F57C00"
+            android:text="🔓 Descriptografar"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtStatusCripto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text=""
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="🔧 AES-256/GCM com chave derivada por PBKDF2 (100.000 iterações). Guarde bem a senha — sem ela, o arquivo criptografado não pode ser recuperado."
+        android:textColor="#777777"
+        android:textSize="12sp" />
+
+</LinearLayout>

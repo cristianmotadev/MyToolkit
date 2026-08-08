@@ -51,6 +51,16 @@
             android:gravity="end">
 
             <Button
+                android:id="@+id/btnWakeOnLan"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="⚡ Ligar"
+                android:textSize="12sp"
+                android:backgroundTint="#F57C00"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="8dp" />
+
+            <Button
                 android:id="@+id/btnEditDevice"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"

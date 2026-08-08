@@ -173,6 +173,7 @@ public class ManageDevicesActivity extends AppCompatActivity {
         TextView txtMac = card.findViewById(R.id.txtDeviceMac);
         TextView txtBrand = card.findViewById(R.id.txtDeviceBrand);
         Button btnEdit = card.findViewById(R.id.btnEditDevice);
+        Button btnWakeOnLan = card.findViewById(R.id.btnWakeOnLan);
         Button btnDelete = card.findViewById(R.id.btnDeleteDevice);
 
         txtName.setText(apelido);
@@ -180,6 +181,7 @@ public class ManageDevicesActivity extends AppCompatActivity {
         txtBrand.setText("Marca: " + fabricante + "\n📶 Rede: " + redeWifi + "\n🔌 Portas: " + portas + "\n🕒 " + ultimaVez);
 
         btnEdit.setOnClickListener(v -> mostrarDialogoEditar(mac, apelido));
+        btnWakeOnLan.setOnClickListener(v -> enviarWakeOnLan(mac, apelido));
         btnDelete.setOnClickListener(v -> excluirDispositivo(mac));
 
         if (fabricante.equalsIgnoreCase("NÃO ENCONTRADO")) {
@@ -260,6 +262,19 @@ public class ManageDevicesActivity extends AppCompatActivity {
             Toast.makeText(this, "Removido: " + apelido, Toast.LENGTH_SHORT).show();
             carregarListaDispositivos();
         }
+    }
+
+    private void enviarWakeOnLan(String mac, String apelido) {
+        Toast.makeText(this, "Enviando pacote mágico para " + apelido + "...", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            String prefixo = NetworkUtils.descobrirPrefixoRedeLocal();
+            String broadcast = WakeOnLanUtils.broadcastDoPrefixo(prefixo);
+            boolean sucesso = WakeOnLanUtils.enviarPacoteMagico(mac, broadcast);
+            runOnUiThread(() -> Toast.makeText(this,
+                    sucesso ? "⚡ Pacote enviado! Se o dispositivo suportar Wake-on-LAN e estiver conectado à energia, ele deve ligar."
+                            : "❌ Falha ao enviar o pacote.",
+                    Toast.LENGTH_LONG).show());
+        }).start();
     }
 
     private void atualizarFabricanteCache(String mac, String novaMarca) {

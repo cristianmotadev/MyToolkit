@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         CardView cardDns = findViewById(R.id.cardDns);
         CardView cardSystemInfo = findViewById(R.id.cardSystemInfo);
         CardView cardAppAudit = findViewById(R.id.cardAppAudit);
+        CardView cardPasswordGenerator = findViewById(R.id.cardPasswordGenerator);
+        CardView cardHashCalculator = findViewById(R.id.cardHashCalculator);
+        CardView cardFileEncryption = findViewById(R.id.cardFileEncryption);
         CardView cardConfig = findViewById(R.id.cardConfig);
 
         cardWifi.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +128,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, AppAuditActivity.class));
+            }
+        });
+
+        cardPasswordGenerator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PasswordGeneratorActivity.class));
+            }
+        });
+
+        cardHashCalculator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, HashCalculatorActivity.class));
+            }
+        });
+
+        cardFileEncryption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, FileEncryptionActivity.class));
             }
         });
 

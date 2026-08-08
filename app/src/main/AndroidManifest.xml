@@ -135,6 +135,33 @@
             android:name=".AppAuditActivity"
             android:exported="false" />
 
+        <!-- Ferramenta: Gerador de Senhas -->
+        <activity
+            android:name=".PasswordGeneratorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Calculadora de Hash -->
+        <activity
+            android:name=".HashCalculatorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Criptografia de Arquivos -->
+        <activity
+            android:name=".FileEncryptionActivity"
+            android:exported="false" />
+
+        <!-- Widget de Tela Inicial -->
+        <receiver
+            android:name=".MyToolkitWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
         <!-- Tela do Banco de Dados JSON -->
         <activity
             android:name=".ManageDevicesActivity"
