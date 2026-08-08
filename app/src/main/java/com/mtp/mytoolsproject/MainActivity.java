@@ -169,8 +169,11 @@ public class MainActivity extends AppCompatActivity {
      * incomodar o usuário toda vez que abre o app.
      */
     private void verificarAtualizacaoEmSegundoPlano() {
+        boolean beta = getSharedPreferences("NetworkPrefs", MODE_PRIVATE).getBoolean("canal_atualizacao_beta", false);
+        UpdateChecker.Canal canal = beta ? UpdateChecker.Canal.BETA : UpdateChecker.Canal.OFICIAL;
+
         new Thread(() -> {
-            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this);
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal);
             if (resultado.temAtualizacao) {
                 runOnUiThread(() -> mostrarDialogoAtualizacao(resultado));
             }
@@ -178,9 +181,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoAtualizacao(UpdateChecker.ResultadoVerificacao resultado) {
+        boolean beta = resultado.canal == UpdateChecker.Canal.BETA;
+        String titulo = beta ? "🧪 Nova versão Beta disponível" : "🎉 Nova atualização disponível";
+        String mensagem = beta
+                ? "Novo commit na branch develop: " + resultado.versaoDisponivel + "\n" + resultado.mensagemExtra
+                : "Você tem a versão " + resultado.versaoAtual + ". A versão " + resultado.versaoDisponivel + " já está disponível no GitHub.";
+
         new AlertDialog.Builder(this)
-                .setTitle("🎉 Nova atualização disponível")
-                .setMessage("Você tem a versão " + resultado.versaoAtual + ". A versão " + resultado.versaoDisponivel + " já está disponível no GitHub.")
+                .setTitle(titulo)
+                .setMessage(mensagem)
                 .setPositiveButton("Ver no GitHub", (dialog, which) -> {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(resultado.urlDaRelease));
                     startActivity(intent);

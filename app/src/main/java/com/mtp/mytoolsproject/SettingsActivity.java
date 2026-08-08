@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_IMPORTAR = 301;
 
     private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
-    private RadioGroup radioGroupTema;
+    private RadioGroup radioGroupTema, radioGroupCanalAtualizacao;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
     private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache, btnVerificarAtualizacao;
     private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp, txtStatusAtualizacao;
@@ -60,8 +60,20 @@ public class SettingsActivity extends AppCompatActivity {
         txtStatusRoot = findViewById(R.id.txtStatusRoot);
         txtStatusNotificacao = findViewById(R.id.txtStatusNotificacao);
         txtVersaoApp = findViewById(R.id.txtVersaoApp);
+
+        prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
+
         btnVerificarAtualizacao = findViewById(R.id.btnVerificarAtualizacao);
         txtStatusAtualizacao = findViewById(R.id.txtStatusAtualizacao);
+        radioGroupCanalAtualizacao = findViewById(R.id.radioGroupCanalAtualizacao);
+
+        boolean canalBetaSalvo = prefs.getBoolean("canal_atualizacao_beta", false);
+        radioGroupCanalAtualizacao.check(canalBetaSalvo ? R.id.radioCanalBeta : R.id.radioCanalOficial);
+        radioGroupCanalAtualizacao.setOnCheckedChangeListener((group, checkedId) -> {
+            boolean beta = checkedId == R.id.radioCanalBeta;
+            prefs.edit().putBoolean("canal_atualizacao_beta", beta).apply();
+            txtStatusAtualizacao.setText("");
+        });
 
         TextView txtDesenvolvidoPor = findViewById(R.id.txtDesenvolvidoPor);
         txtDesenvolvidoPor.setOnClickListener(v ->
@@ -84,8 +96,6 @@ public class SettingsActivity extends AppCompatActivity {
             ThemeUtils.definirModo(this, novoModo);
             recreate(); // reaplica o tema imediatamente nesta tela
         });
-
-        prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
 
         // --- mDNS contínuo ---
         boolean mDnsAtivo = prefs.getBoolean("mdns_continuous", false);
@@ -281,26 +291,38 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void verificarAtualizacaoManual() {
-        txtStatusAtualizacao.setText("⏳ Verificando...");
+        boolean beta = radioGroupCanalAtualizacao.getCheckedRadioButtonId() == R.id.radioCanalBeta;
+        UpdateChecker.Canal canal = beta ? UpdateChecker.Canal.BETA : UpdateChecker.Canal.OFICIAL;
+
+        txtStatusAtualizacao.setText("⏳ Verificando canal " + (beta ? "Beta (develop)..." : "Oficial (main)..."));
         new Thread(() -> {
-            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this);
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal);
             runOnUiThread(() -> {
                 if (resultado.mensagemErro != null) {
                     txtStatusAtualizacao.setText("❌ " + resultado.mensagemErro);
                     txtStatusAtualizacao.setTextColor(0xFFFF5252);
                 } else if (resultado.temAtualizacao) {
-                    txtStatusAtualizacao.setText("🎉 Nova versão disponível: " + resultado.versaoDisponivel
-                            + " (você tem a " + resultado.versaoAtual + ")");
+                    String label = resultado.canal == UpdateChecker.Canal.BETA
+                            ? "🧪 Novo commit na develop: " + resultado.versaoDisponivel
+                            : "🎉 Nova versão disponível: " + resultado.versaoDisponivel + " (você tem a " + resultado.versaoAtual + ")";
+                    txtStatusAtualizacao.setText(label);
                     txtStatusAtualizacao.setTextColor(0xFF4CAF50);
+
+                    String mensagemDialogo = resultado.canal == UpdateChecker.Canal.BETA
+                            ? "Commit " + resultado.versaoDisponivel + ": " + resultado.mensagemExtra
+                            : "Versão " + resultado.versaoDisponivel + " disponível no GitHub.";
+
                     new AlertDialog.Builder(this)
-                            .setTitle("🎉 Nova atualização disponível")
-                            .setMessage("Versão " + resultado.versaoDisponivel + " disponível no GitHub.")
+                            .setTitle(resultado.canal == UpdateChecker.Canal.BETA ? "🧪 Nova versão Beta disponível" : "🎉 Nova atualização disponível")
+                            .setMessage(mensagemDialogo)
                             .setPositiveButton("Ver no GitHub", (dialog, which) ->
                                     startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultado.urlDaRelease))))
                             .setNegativeButton("Fechar", null)
                             .show();
                 } else {
-                    txtStatusAtualizacao.setText("✅ Você já está na versão mais recente (" + resultado.versaoAtual + ").");
+                    txtStatusAtualizacao.setText(resultado.canal == UpdateChecker.Canal.BETA
+                            ? "✅ Nenhum commit novo na develop desde a última verificação."
+                            : "✅ Você já está na versão mais recente (" + resultado.versaoAtual + ").");
                     txtStatusAtualizacao.setTextColor(0xFF4CAF50);
                 }
             });

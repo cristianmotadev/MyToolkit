@@ -160,6 +160,43 @@
                 android:textColor="@color/colorTextHint"
                 android:textSize="12sp"/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Canal de atualização:"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupCanalAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioCanalOficial"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:checked="true"
+                    android:text="🟢 Oficial (main)"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+
+                <RadioButton
+                    android:id="@+id/radioCanalBeta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:text="🟠 Beta (develop)"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+            </RadioGroup>
+
             <Button
                 android:id="@+id/btnVerificarAtualizacao"
                 android:layout_width="match_parent"
