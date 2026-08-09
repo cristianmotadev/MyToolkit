@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_IMPORTAR = 301;
 
     private Switch switchMdns, switchLocationPermission, switchNotificarNovos, switchBloqueioApp;
-    private RadioGroup radioGroupTema, radioGroupCanalAtualizacao;
+    private RadioGroup radioGroupTema, radioGroupCanalAtualizacao, radioGroupTipoAtualizacao;
     private EditText editIntervalo, editIntervaloWifiPadrao, editIntervaloNetworkPadrao;
     private Button btnSalvarIntervalo, btnEditJson, btnLimparCache, btnVerificarRoot, btnSalvarIntervalosPadrao, btnAlterarPin, btnExportarCache, btnImportarCache, btnVerificarAtualizacao;
     private TextView txtStatusRoot, txtStatusNotificacao, txtVersaoApp, txtStatusAtualizacao;
@@ -72,6 +72,15 @@ public class SettingsActivity extends AppCompatActivity {
         radioGroupCanalAtualizacao.setOnCheckedChangeListener((group, checkedId) -> {
             boolean beta = checkedId == R.id.radioCanalBeta;
             prefs.edit().putBoolean("canal_atualizacao_beta", beta).apply();
+            txtStatusAtualizacao.setText("");
+        });
+
+        radioGroupTipoAtualizacao = findViewById(R.id.radioGroupTipoAtualizacao);
+        boolean tipoCommitSalvo = prefs.getBoolean("tipo_atualizacao_commit", false);
+        radioGroupTipoAtualizacao.check(tipoCommitSalvo ? R.id.radioTipoCommit : R.id.radioTipoRelease);
+        radioGroupTipoAtualizacao.setOnCheckedChangeListener((group, checkedId) -> {
+            boolean commit = checkedId == R.id.radioTipoCommit;
+            prefs.edit().putBoolean("tipo_atualizacao_commit", commit).apply();
             txtStatusAtualizacao.setText("");
         });
 
@@ -292,41 +301,58 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void verificarAtualizacaoManual() {
         boolean beta = radioGroupCanalAtualizacao.getCheckedRadioButtonId() == R.id.radioCanalBeta;
+        boolean commit = radioGroupTipoAtualizacao.getCheckedRadioButtonId() == R.id.radioTipoCommit;
         UpdateChecker.Canal canal = beta ? UpdateChecker.Canal.BETA : UpdateChecker.Canal.OFICIAL;
+        UpdateChecker.Tipo tipo = commit ? UpdateChecker.Tipo.COMMIT : UpdateChecker.Tipo.RELEASE;
 
-        txtStatusAtualizacao.setText("⏳ Verificando canal " + (beta ? "Beta (develop)..." : "Oficial (main)..."));
+        txtStatusAtualizacao.setText("⏳ Verificando (" + (beta ? "Beta" : "Oficial") + " / " + (commit ? "Commits" : "Releases") + ")...");
+        txtStatusAtualizacao.setTextColor(0xFFAAAAAA);
+
         new Thread(() -> {
-            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal);
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal, tipo);
             runOnUiThread(() -> {
                 if (resultado.mensagemErro != null) {
                     txtStatusAtualizacao.setText("❌ " + resultado.mensagemErro);
                     txtStatusAtualizacao.setTextColor(0xFFFF5252);
                 } else if (resultado.temAtualizacao) {
-                    String label = resultado.canal == UpdateChecker.Canal.BETA
-                            ? "🧪 Novo commit na develop: " + resultado.versaoDisponivel
-                            : "🎉 Nova versão disponível: " + resultado.versaoDisponivel + " (você tem a " + resultado.versaoAtual + ")";
-                    txtStatusAtualizacao.setText(label);
+                    txtStatusAtualizacao.setText(resultado.tituloDialogo() + ": " + resultado.versaoDisponivel);
                     txtStatusAtualizacao.setTextColor(0xFF4CAF50);
-
-                    String mensagemDialogo = resultado.canal == UpdateChecker.Canal.BETA
-                            ? "Commit " + resultado.versaoDisponivel + ": " + resultado.mensagemExtra
-                            : "Versão " + resultado.versaoDisponivel + " disponível no GitHub.";
-
-                    new AlertDialog.Builder(this)
-                            .setTitle(resultado.canal == UpdateChecker.Canal.BETA ? "🧪 Nova versão Beta disponível" : "🎉 Nova atualização disponível")
-                            .setMessage(mensagemDialogo)
-                            .setPositiveButton("Ver no GitHub", (dialog, which) ->
-                                    startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultado.urlDaRelease))))
-                            .setNegativeButton("Fechar", null)
-                            .show();
+                    mostrarDialogoAtualizacao(resultado);
                 } else {
-                    txtStatusAtualizacao.setText(resultado.canal == UpdateChecker.Canal.BETA
-                            ? "✅ Nenhum commit novo na develop desde a última verificação."
+                    txtStatusAtualizacao.setText(resultado.tipo == UpdateChecker.Tipo.COMMIT
+                            ? "✅ Nenhum commit novo desde a última verificação."
                             : "✅ Você já está na versão mais recente (" + resultado.versaoAtual + ").");
                     txtStatusAtualizacao.setTextColor(0xFF4CAF50);
                 }
             });
         }).start();
+    }
+
+    /** Monta o changelog de forma organizada (título, autor, data, descrição) e oferece baixar direto quando há .apk. */
+    private void mostrarDialogoAtualizacao(UpdateChecker.ResultadoVerificacao resultado) {
+        StringBuilder mensagem = new StringBuilder();
+        mensagem.append("📌 ").append(resultado.titulo).append("\n");
+        mensagem.append("👤 ").append(resultado.autor).append("  •  🗓️ ").append(resultado.dataFormatada).append("\n\n");
+
+        if (resultado.changelog != null && !resultado.changelog.trim().isEmpty()) {
+            mensagem.append(resultado.changelog.trim());
+        } else {
+            mensagem.append("(sem descrição adicional)");
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(resultado.tituloDialogo())
+                .setMessage(mensagem.toString())
+                .setNegativeButton("Fechar", null)
+                .setNeutralButton("Ver no GitHub", (dialog, which) ->
+                        startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultado.urlPagina))));
+
+        if (resultado.urlApk != null) {
+            builder.setPositiveButton("⬇️ Baixar e Instalar", (dialog, which) ->
+                    UpdateDownloader.baixarEInstalar(this, resultado.urlApk, resultado.nomeArquivoApk));
+        }
+
+        builder.show();
     }
 
     private void verificarRoot() {

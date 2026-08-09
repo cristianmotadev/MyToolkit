@@ -197,6 +197,51 @@
                     android:textSize="13sp"/>
             </RadioGroup>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Tipo de verificação:"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupTipoAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioTipoRelease"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:checked="true"
+                    android:text="📦 Releases"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+
+                <RadioButton
+                    android:id="@+id/radioTipoCommit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:text="🔀 Commits"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Releases podem trazer o instalador direto pelo app. Commits mostram só código-fonte no GitHub."
+                android:textColor="@color/colorTextHint"
+                android:textSize="11sp"/>
+
             <Button
                 android:id="@+id/btnVerificarAtualizacao"
                 android:layout_width="match_parent"

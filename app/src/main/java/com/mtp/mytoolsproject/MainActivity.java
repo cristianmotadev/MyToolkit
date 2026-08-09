@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -163,39 +164,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Checa em segundo plano se há uma nova Release no GitHub. Só mostra o
-     * diálogo se realmente encontrar uma versão mais nova — em caso de erro
-     * (sem internet, repositório privado, etc.) fica em silêncio, sem
-     * incomodar o usuário toda vez que abre o app.
+     * Checa em segundo plano se há atualização, respeitando o canal (Oficial/Beta)
+     * e o tipo (Releases/Commits) escolhidos nas Configurações. Só mostra o
+     * diálogo se realmente encontrar algo novo — em caso de erro (sem internet,
+     * repositório privado, etc.) fica em silêncio, sem incomodar o usuário toda
+     * vez que abre o app.
      */
     private void verificarAtualizacaoEmSegundoPlano() {
-        boolean beta = getSharedPreferences("NetworkPrefs", MODE_PRIVATE).getBoolean("canal_atualizacao_beta", false);
+        SharedPreferences prefsAtualizacao = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
+        boolean beta = prefsAtualizacao.getBoolean("canal_atualizacao_beta", false);
+        boolean commit = prefsAtualizacao.getBoolean("tipo_atualizacao_commit", false);
         UpdateChecker.Canal canal = beta ? UpdateChecker.Canal.BETA : UpdateChecker.Canal.OFICIAL;
+        UpdateChecker.Tipo tipo = commit ? UpdateChecker.Tipo.COMMIT : UpdateChecker.Tipo.RELEASE;
 
         new Thread(() -> {
-            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal);
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal, tipo);
             if (resultado.temAtualizacao) {
                 runOnUiThread(() -> mostrarDialogoAtualizacao(resultado));
             }
         }).start();
     }
 
+    /** Monta o changelog de forma organizada (título, autor, data, descrição) e oferece baixar direto quando há .apk. */
     private void mostrarDialogoAtualizacao(UpdateChecker.ResultadoVerificacao resultado) {
-        boolean beta = resultado.canal == UpdateChecker.Canal.BETA;
-        String titulo = beta ? "🧪 Nova versão Beta disponível" : "🎉 Nova atualização disponível";
-        String mensagem = beta
-                ? "Novo commit na branch develop: " + resultado.versaoDisponivel + "\n" + resultado.mensagemExtra
-                : "Você tem a versão " + resultado.versaoAtual + ". A versão " + resultado.versaoDisponivel + " já está disponível no GitHub.";
+        StringBuilder mensagem = new StringBuilder();
+        mensagem.append("📌 ").append(resultado.titulo).append("\n");
+        mensagem.append("👤 ").append(resultado.autor).append("  •  🗓️ ").append(resultado.dataFormatada).append("\n\n");
 
-        new AlertDialog.Builder(this)
-                .setTitle(titulo)
-                .setMessage(mensagem)
-                .setPositiveButton("Ver no GitHub", (dialog, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(resultado.urlDaRelease));
-                    startActivity(intent);
-                })
+        if (resultado.changelog != null && !resultado.changelog.trim().isEmpty()) {
+            mensagem.append(resultado.changelog.trim());
+        } else {
+            mensagem.append("(sem descrição adicional)");
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(resultado.tituloDialogo())
+                .setMessage(mensagem.toString())
                 .setNegativeButton("Depois", null)
-                .show();
+                .setNeutralButton("Ver no GitHub", (dialog, which) ->
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(resultado.urlPagina))));
+
+        if (resultado.urlApk != null) {
+            builder.setPositiveButton("⬇️ Baixar e Instalar", (dialog, which) ->
+                    UpdateDownloader.baixarEInstalar(this, resultado.urlApk, resultado.nomeArquivoApk));
+        }
+
+        builder.show();
     }
 
     private void criarCanalNotificacao() {

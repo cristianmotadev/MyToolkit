@@ -9,76 +9,124 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
- * Verifica atualizações em dois canais:
+ * Verifica atualizações combinando duas escolhas independentes:
  *
- * - OFICIAL: compara a versão instalada com a última Release publicada no
- *   GitHub (tag da branch main). Funciona via API de Releases.
+ * CANAL:
+ * - OFICIAL: branch main / releases não marcadas como pré-lançamento
+ * - BETA: branch develop / releases marcadas como "pre-release" no GitHub
  *
- * - BETA: como a branch develop não tem "versões" formais, rastreia o
- *   ÚLTIMO COMMIT dela. Guarda o SHA do último commit já visto nas
- *   preferências; se um novo commit aparecer, considera que há atualização
- *   beta disponível.
+ * TIPO:
+ * - RELEASE: usa a API de Releases (pode ter um .apk anexado para instalação direta)
+ * - COMMIT: usa o último commit da branch (sempre só código-fonte, nunca instalável direto)
  *
- * IMPORTANTE: só funciona com o repositório PÚBLICO — a API do GitHub não
- * expõe dados de repositórios privados sem autenticação, e este app
- * propositalmente não embute nenhum token (isso seria um risco de segurança,
- * já que o APK pode ser descompilado e o token extraído).
+ * IMPORTANTE: só funciona com o repositório PÚBLICO — sem token embutido no app
+ * (evita expor credenciais num APK que pode ser descompilado).
  */
 public final class UpdateChecker {
 
     public enum Canal { OFICIAL, BETA }
+    public enum Tipo { RELEASE, COMMIT }
 
-    // Repositório configurado: github.com/cristianmotadev/MyToolkit
     private static final String OWNER = "cristianmotadev";
     private static final String REPO = "MyToolkit";
-    private static final String URL_RELEASE_LATEST = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases/latest";
-    private static final String URL_COMMIT_DEVELOP = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/commits/develop";
-    private static final String CHAVE_ULTIMO_SHA_BETA = "beta_ultimo_sha_conhecido";
+    private static final String URL_RELEASES_LISTA = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases?per_page=15";
 
     private UpdateChecker() {}
 
     public static class ResultadoVerificacao {
         public boolean temAtualizacao;
         public Canal canal;
-        public String versaoAtual;      // versão instalada (só relevante no canal Oficial)
-        public String versaoDisponivel; // tag (Oficial) ou SHA curto do commit (Beta)
-        public String mensagemExtra;    // mensagem do commit, só no canal Beta
-        public String urlDaRelease;
-        public String mensagemErro;     // null se não houve erro
+        public Tipo tipo;
+        public String versaoAtual;
+        public String versaoDisponivel;
+        public String titulo;
+        public String changelog;
+        public String autor;
+        public String dataFormatada;
+        public String urlPagina;
+        public String urlApk;
+        public String nomeArquivoApk;
+        public String mensagemErro;
+
+        public String tituloDialogo() {
+            if (canal == Canal.BETA && tipo == Tipo.COMMIT) return "🧪 Novo commit na develop";
+            if (canal == Canal.BETA) return "🧪 Nova versão Beta disponível";
+            return "🎉 Nova atualização disponível";
+        }
     }
 
-    /** Chamada bloqueante — sempre execute em uma thread separada da UI. */
-    public static ResultadoVerificacao verificar(Context context, Canal canal) {
-        return canal == Canal.BETA ? verificarBeta(context) : verificarOficial(context);
+    public static ResultadoVerificacao verificar(Context context, Canal canal, Tipo tipo) {
+        return tipo == Tipo.RELEASE ? verificarRelease(context, canal) : verificarCommit(context, canal);
     }
 
-    private static ResultadoVerificacao verificarOficial(Context context) {
+    private static ResultadoVerificacao verificarRelease(Context context, Canal canal) {
         ResultadoVerificacao resultado = new ResultadoVerificacao();
-        resultado.canal = Canal.OFICIAL;
+        resultado.canal = canal;
+        resultado.tipo = Tipo.RELEASE;
         resultado.versaoAtual = obterVersaoInstalada(context);
 
         HttpURLConnection conn = null;
         try {
-            conn = abrirConexao(URL_RELEASE_LATEST);
+            conn = abrirConexao(URL_RELEASES_LISTA);
             int codigo = conn.getResponseCode();
-            if (codigo == 404) {
-                resultado.mensagemErro = "Nenhuma Release encontrada. O repositório pode estar privado, ou ainda não existe nenhuma Release publicada.";
-                return resultado;
-            }
             if (codigo != 200) {
-                resultado.mensagemErro = "GitHub respondeu com código " + codigo + ".";
+                resultado.mensagemErro = codigo == 404
+                        ? "Repositório não encontrado (ou privado)."
+                        : "GitHub respondeu com código " + codigo + ".";
                 return resultado;
             }
 
-            org.json.JSONObject json = lerJson(conn);
-            String tagName = json.optString("tag_name", "");
+            JSONArray releases = new JSONArray(lerCorpo(conn));
+            JSONObject escolhida = null;
+            boolean querPrerelease = canal == Canal.BETA;
+
+            for (int i = 0; i < releases.length(); i++) {
+                JSONObject r = releases.getJSONObject(i);
+                if (r.optBoolean("prerelease", false) == querPrerelease && !r.optBoolean("draft", false)) {
+                    escolhida = r;
+                    break;
+                }
+            }
+
+            if (escolhida == null) {
+                resultado.mensagemErro = querPrerelease
+                        ? "Nenhuma Release Beta (pre-release) publicada ainda."
+                        : "Nenhuma Release Oficial publicada ainda.";
+                return resultado;
+            }
+
+            String tagName = escolhida.optString("tag_name", "");
             String versaoDisponivel = tagName.startsWith("v") ? tagName.substring(1) : tagName;
 
             resultado.versaoDisponivel = versaoDisponivel;
-            resultado.urlDaRelease = json.optString("html_url", "https://github.com/" + OWNER + "/" + REPO + "/releases");
+            resultado.titulo = escolhida.optString("name", tagName).trim();
+            if (resultado.titulo.isEmpty()) resultado.titulo = tagName;
+            resultado.changelog = escolhida.optString("body", "").trim();
+            resultado.autor = escolhida.optJSONObject("author") != null
+                    ? escolhida.optJSONObject("author").optString("login", "desconhecido") : "desconhecido";
+            resultado.dataFormatada = formatarDataIso(escolhida.optString("published_at", ""));
+            resultado.urlPagina = escolhida.optString("html_url", "https://github.com/" + OWNER + "/" + REPO + "/releases");
             resultado.temAtualizacao = ehVersaoMaisNova(versaoDisponivel, resultado.versaoAtual);
+
+            JSONArray assets = escolhida.optJSONArray("assets");
+            if (assets != null) {
+                for (int i = 0; i < assets.length(); i++) {
+                    JSONObject asset = assets.getJSONObject(i);
+                    String nome = asset.optString("name", "");
+                    if (nome.toLowerCase(Locale.ROOT).endsWith(".apk")) {
+                        resultado.urlApk = asset.optString("browser_download_url", null);
+                        resultado.nomeArquivoApk = nome;
+                        break;
+                    }
+                }
+            }
 
         } catch (Exception e) {
             resultado.mensagemErro = "Erro ao verificar: " + e.getMessage();
@@ -89,46 +137,57 @@ public final class UpdateChecker {
         return resultado;
     }
 
-    private static ResultadoVerificacao verificarBeta(Context context) {
+    private static ResultadoVerificacao verificarCommit(Context context, Canal canal) {
         ResultadoVerificacao resultado = new ResultadoVerificacao();
-        resultado.canal = Canal.BETA;
+        resultado.canal = canal;
+        resultado.tipo = Tipo.COMMIT;
         resultado.versaoAtual = obterVersaoInstalada(context);
 
+        String branch = canal == Canal.BETA ? "develop" : "main";
+        String url = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/commits/" + branch;
+        String chavePrefs = "commit_ultimo_sha_" + branch;
+
         SharedPreferences prefs = context.getSharedPreferences("NetworkPrefs", Context.MODE_PRIVATE);
-        String shaConhecido = prefs.getString(CHAVE_ULTIMO_SHA_BETA, null);
+        String shaConhecido = prefs.getString(chavePrefs, null);
 
         HttpURLConnection conn = null;
         try {
-            conn = abrirConexao(URL_COMMIT_DEVELOP);
+            conn = abrirConexao(url);
             int codigo = conn.getResponseCode();
-            if (codigo == 404) {
-                resultado.mensagemErro = "Branch \"develop\" não encontrada (ou repositório privado).";
-                return resultado;
-            }
             if (codigo != 200) {
-                resultado.mensagemErro = "GitHub respondeu com código " + codigo + ".";
+                resultado.mensagemErro = codigo == 404
+                        ? "Branch \"" + branch + "\" não encontrada (ou repositório privado)."
+                        : "GitHub respondeu com código " + codigo + ".";
                 return resultado;
             }
 
-            org.json.JSONObject json = lerJson(conn);
+            JSONObject json = new JSONObject(lerCorpo(conn));
             String shaCompleto = json.optString("sha", "");
             String shaCurto = shaCompleto.length() >= 7 ? shaCompleto.substring(0, 7) : shaCompleto;
 
-            org.json.JSONObject commitInfo = json.optJSONObject("commit");
-            String mensagemCommit = commitInfo != null ? commitInfo.optString("message", "") : "";
-            if (mensagemCommit.contains("\n")) {
-                mensagemCommit = mensagemCommit.substring(0, mensagemCommit.indexOf("\n"));
+            JSONObject commitInfo = json.optJSONObject("commit");
+            String mensagemCompleta = "";
+            String autor = "desconhecido";
+            String data = "";
+            if (commitInfo != null) {
+                mensagemCompleta = commitInfo.optString("message", "");
+                JSONObject autorInfo = commitInfo.optJSONObject("author");
+                if (autorInfo != null) {
+                    autor = autorInfo.optString("name", "desconhecido");
+                    data = autorInfo.optString("date", "");
+                }
             }
 
             resultado.versaoDisponivel = shaCurto;
-            resultado.mensagemExtra = mensagemCommit;
-            resultado.urlDaRelease = "https://github.com/" + OWNER + "/" + REPO + "/commit/" + shaCompleto;
+            resultado.titulo = "Commit " + shaCurto + " (" + branch + ")";
+            resultado.changelog = mensagemCompleta;
+            resultado.autor = autor;
+            resultado.dataFormatada = formatarDataIso(data);
+            resultado.urlPagina = "https://github.com/" + OWNER + "/" + REPO + "/commit/" + shaCompleto;
+            resultado.urlApk = null;
 
-            // Só avisa se já existia um SHA salvo anteriormente E ele mudou —
-            // na primeiríssima verificação, apenas registra a base, sem alarme falso.
             resultado.temAtualizacao = shaConhecido != null && !shaConhecido.equals(shaCompleto);
-
-            prefs.edit().putString(CHAVE_ULTIMO_SHA_BETA, shaCompleto).apply();
+            prefs.edit().putString(chavePrefs, shaCompleto).apply();
 
         } catch (Exception e) {
             resultado.mensagemErro = "Erro ao verificar: " + e.getMessage();
@@ -149,13 +208,26 @@ public final class UpdateChecker {
         return conn;
     }
 
-    private static org.json.JSONObject lerJson(HttpURLConnection conn) throws Exception {
+    private static String lerCorpo(HttpURLConnection conn) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
         StringBuilder resposta = new StringBuilder();
         String linha;
         while ((linha = reader.readLine()) != null) resposta.append(linha);
         reader.close();
-        return new org.json.JSONObject(resposta.toString());
+        return resposta.toString();
+    }
+
+    private static String formatarDataIso(String isoDate) {
+        if (isoDate == null || isoDate.isEmpty()) return "data desconhecida";
+        try {
+            SimpleDateFormat entrada = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            entrada.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            Date data = entrada.parse(isoDate);
+            SimpleDateFormat saida = new SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault());
+            return saida.format(data);
+        } catch (Exception e) {
+            return isoDate;
+        }
     }
 
     private static String obterVersaoInstalada(Context context) {
@@ -167,7 +239,6 @@ public final class UpdateChecker {
         }
     }
 
-    /** Compara duas versões no formato "1.2.3" numericamente, parte por parte. */
     private static boolean ehVersaoMaisNova(String versaoRemota, String versaoLocal) {
         try {
             String[] partesRemota = versaoRemota.split("\\.");
