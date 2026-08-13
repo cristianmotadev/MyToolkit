@@ -14,6 +14,13 @@ android {
 
     compileSdk = 37
 
+    // Force Java 17 toolchain to match installed JDK
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+
 
 
     defaultConfig {

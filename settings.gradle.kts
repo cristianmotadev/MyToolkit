@@ -16,7 +16,8 @@ plugins {
 }
 toolchainManagement {
     jvm {
-        provisioningStrategy.set(org.gradle.jvm.toolchain.JvmToolchainProvisioningStrategy.LOCAL_ONLY)
+        // Disable toolchain management entirely - use system Java 17
+        provisioningStrategy.set(org.gradle.jvm.toolchain.JvmToolchainProvisioningStrategy.NEVER)
     }
 }
 dependencyResolutionManagement {
