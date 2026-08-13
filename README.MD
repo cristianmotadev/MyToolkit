@@ -39,6 +39,7 @@ O projeto nasceu com o objetivo de explorar, na prática, conceitos de redes, se
 - **Bloqueio do app** por PIN (hash SHA-256 com salt) e/ou biometria (digital/rosto)
 - **`FLAG_SECURE`** na tela de senhas Wi-Fi, bloqueando screenshot e gravação de tela
 - **Auditoria de Apps Instalados**: lista apps com permissões sensíveis concedidas (câmera, localização, contatos, SMS...), ordenados por nível de risco
+- **Consulta de Vazamento de Senha**: verifica se uma senha ou e-mail já apareceu em vazamentos conhecidos usando a API do Have I Been Pwned — a mesma tecnologia que Chrome e Firefox usam nativamente. Usa k-anonimato: apenas os 5 primeiros caracteres do hash são enviados, garantindo que a senha nunca saia completa do dispositivo
 - **Informações do Sistema**: specs de hardware, kernel, sensores e bateria
 - **Exportar/Importar banco de dados** e **relatórios em PDF** para documentação/evidência
 

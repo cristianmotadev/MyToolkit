@@ -1,15 +1,204 @@
+```gitignore
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+.env.*
+
+# Build directories
+dist/
+build/
+target/
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.~
+*~
+
+# Editors and IDEs
+.vscode/
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+Thumbs.db
+desktop.ini
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage*
+.nox/
+.pytest_cache/
+.mypy_cache/
+
+# Node.js specific
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+jspm_packages/
+*.tsbuildinfo
+.nyc_output
+coverage/
+
+# Java specific
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# C/C++ specific
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.obj
+*.ilk
+*.pdb
+*.sdf
+*.suo
+*.tlog
+*.tlg
+*.vcxproj.filters
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Ruby specific
+*.gem
+*.rbc
+extconf.rb
+Gemfile.lock
+.ruby-version
+.bundle/
+vendor/bundle/
+
+# Rust specific
+target/
+Cargo.lock
+*.so
+*.dylib
+*.dll
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Compressed files
+*.zip
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.gz
+*.rar
+*.7z
+*.bz2
+*.xz
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+
+# Test and coverage
+*.cover
+coverage.xml
+*.gcov
+*.lcov
+*.tfstate
+*.tfvars
+.terraform/
+
+# Environment specific
+.env
+.env.local
+.env.*
+!.env.example
+!.env.sample
+!.env.schema
+!.env.template
+
+# Backup and swap files
+*.bak
+*.swp
+*.swo
+*~
+._*
+
+# SQLite
+*.db
+*.db-journal
+
+# Temporary folders
+tmp/
+temp/
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+```
