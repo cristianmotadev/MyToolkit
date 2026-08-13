@@ -12,6 +12,9 @@ appcompat = "1.7.1"
 material = "1.14.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
+securityCrypto = "1.1.0-alpha06"
+timber = "5.0.1"
+rootbeer = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +35,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+scotty-rootbeer = { group = "com.scottyab", name = "rootbeer-lib", version.ref = "rootbeer" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -84,46 +84,55 @@ kotlin {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation(libs.androidx.core.ktx)
 
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation(libs.androidx.activity.compose)
 
-    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation(platform(libs.androidx.compose.bom))
 
-    implementation("androidx.compose.ui:ui")
+    implementation(libs.androidx.compose.ui)
 
-    implementation("androidx.compose.ui:ui-graphics")
+    implementation(libs.androidx.compose.ui.graphics)
 
-    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.compose.material3)
 
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation(libs.androidx.appcompat)
 
-    implementation("com.google.android.material:material:1.11.0")
+    implementation(libs.material)
 
-    implementation("androidx.biometric:biometric:1.1.0")
+    implementation(libs.androidx.biometric)
 
     implementation("com.google.zxing:core:3.5.3")
 
-
-
-    testImplementation("junit:junit:4.13.2")
-
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.00"))
-
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    // Segurança melhorada
+    implementation(libs.androidx.security.crypto)
+    
+    // Logging estruturado
+    implementation(libs.timber)
+    
+    // Detecção de root
+    implementation(libs.scotty.rootbeer)
 
 
 
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    testImplementation(libs.junit)
 
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    androidTestImplementation(libs.androidx.junit)
+
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
 }

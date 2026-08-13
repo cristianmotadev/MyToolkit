@@ -72,6 +72,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioGroupCanalAtualizacao.setOnCheckedChangeListener((group, checkedId) -> {
             boolean beta = checkedId == R.id.radioCanalBeta;
             prefs.edit().putBoolean("canal_atualizacao_beta", beta).apply();
+            UpdateChecker.limparCache(); // Limpa cache ao mudar canal
             txtStatusAtualizacao.setText("");
         });
 
@@ -81,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
         radioGroupTipoAtualizacao.setOnCheckedChangeListener((group, checkedId) -> {
             boolean commit = checkedId == R.id.radioTipoCommit;
             prefs.edit().putBoolean("tipo_atualizacao_commit", commit).apply();
+            UpdateChecker.limparCache(); // Limpa cache ao mudar tipo
             txtStatusAtualizacao.setText("");
         });
 
@@ -309,7 +311,8 @@ public class SettingsActivity extends AppCompatActivity {
         txtStatusAtualizacao.setTextColor(0xFFAAAAAA);
 
         new Thread(() -> {
-            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal, tipo);
+            // Força atualização se o usuário clicar manualmente, mas usa cache nas verificações automáticas
+            UpdateChecker.ResultadoVerificacao resultado = UpdateChecker.verificar(this, canal, tipo, true);
             runOnUiThread(() -> {
                 if (resultado.mensagemErro != null) {
                     txtStatusAtualizacao.setText("❌ " + resultado.mensagemErro);
@@ -357,18 +360,28 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void verificarRoot() {
         txtStatusRoot.setText("⏳ Verificando...");
-        new Thread(() -> {
-            boolean temRoot = NetworkUtils.verificarRootDisponivel();
-            runOnUiThread(() -> {
-                if (temRoot) {
-                    txtStatusRoot.setText("✅ Root detectado e concedido — todas as ferramentas devem funcionar normalmente.");
-                    txtStatusRoot.setTextColor(0xFF4CAF50);
-                } else {
-                    txtStatusRoot.setText("❌ Root não detectado (ou não concedido). Ferramentas que dependem de root (Senhas Wi-Fi, Dispositivos na Rede, mDNS) não vão funcionar.");
-                    txtStatusRoot.setTextColor(0xFFFF5252);
-                }
-            });
-        }).start();
+        RootUtils.checkRootAsync(this, new RootUtils.RootCheckCallback() {
+            @Override
+            public void onResult(boolean isRooted) {
+                runOnUiThread(() -> {
+                    if (isRooted) {
+                        txtStatusRoot.setText("✅ Root detectado e concedido — todas as ferramentas devem funcionar normalmente.");
+                        txtStatusRoot.setTextColor(0xFF4CAF50);
+                    } else {
+                        txtStatusRoot.setText("❌ Root não detectado (ou não concedido). Ferramentas que dependem de root (Senhas Wi-Fi, Dispositivos na Rede, mDNS) não vão funcionar.");
+                        txtStatusRoot.setTextColor(0xFFFF5252);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception error) {
+                runOnUiThread(() -> {
+                    txtStatusRoot.setText("⚠️ Erro na verificação: " + error.getMessage());
+                    txtStatusRoot.setTextColor(0xFFFFA726);
+                });
+            }
+        });
     }
 
     private void exibirVersaoApp() {

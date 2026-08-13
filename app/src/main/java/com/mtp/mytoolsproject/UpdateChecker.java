@@ -37,6 +37,24 @@ public final class UpdateChecker {
     private static final String OWNER = "cristianmotadev";
     private static final String REPO = "MyToolkit";
     private static final String URL_RELEASES_LISTA = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/releases?per_page=15";
+    
+    // Cache em memória com timestamp
+    private static class CacheEntry<T> {
+        T data;
+        long timestamp;
+        
+        CacheEntry(T data, long timestamp) {
+            this.data = data;
+            this.timestamp = timestamp;
+        }
+        
+        boolean isExpired(long maxAgeMs) {
+            return System.currentTimeMillis() - timestamp > maxAgeMs;
+        }
+    }
+    
+    private static final java.util.Map<String, CacheEntry<ResultadoVerificacao>> cacheVerificacoes = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final long CACHE_VALIDITY_MS = 5 * 60 * 1000; // 5 minutos
 
     private UpdateChecker() {}
 
@@ -63,7 +81,48 @@ public final class UpdateChecker {
     }
 
     public static ResultadoVerificacao verificar(Context context, Canal canal, Tipo tipo) {
-        return tipo == Tipo.RELEASE ? verificarRelease(context, canal) : verificarCommit(context, canal);
+        return verificar(context, canal, tipo, false);
+    }
+    
+    /**
+     * Verifica atualizações com opção de forçar atualização do cache.
+     * @param context Contexto da aplicação
+     * @param canal Canal (OFICIAL ou BETA)
+     * @param tipo Tipo (RELEASE ou COMMIT)
+     * @param forcarAtualizacao true para ignorar cache e buscar nova informação
+     * @return Resultado da verificação
+     */
+    public static ResultadoVerificacao verificar(Context context, Canal canal, Tipo tipo, boolean forcarAtualizacao) {
+        // Gera chave única para o cache
+        String cacheKey = canal.name() + "_" + tipo.name();
+        
+        // Verifica cache se não for forçado
+        if (!forcarAtualizacao) {
+            CacheEntry<ResultadoVerificacao> entry = cacheVerificacoes.get(cacheKey);
+            if (entry != null && !entry.isExpired(CACHE_VALIDITY_MS)) {
+                timber.log.Timber.v("Retornando resultado em cache para %s", cacheKey);
+                return entry.data;
+            }
+        }
+        
+        timber.log.Timber.d("Verificando atualizações: canal=%s, tipo=%s (cache=%s)", 
+            canal, tipo, forcarAtualizacao ? "forçado" : "normal");
+        
+        ResultadoVerificacao resultado = tipo == Tipo.RELEASE ? verificarRelease(context, canal) : verificarCommit(context, canal);
+        
+        // Armazena no cache (mesmo com erro, para evitar chamadas repetidas em caso de falha temporária)
+        cacheVerificacoes.put(cacheKey, new CacheEntry<>(resultado, System.currentTimeMillis()));
+        
+        return resultado;
+    }
+    
+    /**
+     * Limpa o cache de verificações de atualização.
+     * Use quando o usuário mudar manualmente as configurações de canal/tipo.
+     */
+    public static void limparCache() {
+        cacheVerificacoes.clear();
+        timber.log.Timber.d("Cache de atualizações limpo");
     }
 
     private static ResultadoVerificacao verificarRelease(Context context, Canal canal) {
@@ -145,10 +204,6 @@ public final class UpdateChecker {
 
         String branch = canal == Canal.BETA ? "develop" : "main";
         String url = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/commits/" + branch;
-        String chavePrefs = "commit_ultimo_sha_" + branch;
-
-        SharedPreferences prefs = context.getSharedPreferences("NetworkPrefs", Context.MODE_PRIVATE);
-        String shaConhecido = prefs.getString(chavePrefs, null);
 
         HttpURLConnection conn = null;
         try {
@@ -162,34 +217,66 @@ public final class UpdateChecker {
             }
 
             JSONObject json = new JSONObject(lerCorpo(conn));
+            JSONObject commitInfo = json.optJSONObject("commit");
+            
+            // Extrai metadata do commit
             String shaCompleto = json.optString("sha", "");
             String shaCurto = shaCompleto.length() >= 7 ? shaCompleto.substring(0, 7) : shaCompleto;
-
-            JSONObject commitInfo = json.optJSONObject("commit");
+            
             String mensagemCompleta = "";
             String autor = "desconhecido";
-            String data = "";
+            String dataIso = "";
+            
             if (commitInfo != null) {
                 mensagemCompleta = commitInfo.optString("message", "");
                 JSONObject autorInfo = commitInfo.optJSONObject("author");
                 if (autorInfo != null) {
                     autor = autorInfo.optString("name", "desconhecido");
-                    data = autorInfo.optString("date", "");
+                    dataIso = autorInfo.optString("date", "");
                 }
+            }
+
+            // Pega o hash do primeiro parent (commit anterior)
+            JSONArray parents = json.optJSONArray("parents");
+            String parentSha = null;
+            if (parents != null && parents.length() > 0) {
+                parentSha = parents.optJSONObject(0).optString("sha", null);
             }
 
             resultado.versaoDisponivel = shaCurto;
             resultado.titulo = "Commit " + shaCurto + " (" + branch + ")";
             resultado.changelog = mensagemCompleta;
             resultado.autor = autor;
-            resultado.dataFormatada = formatarDataIso(data);
+            resultado.dataFormatada = formatarDataIso(dataIso);
             resultado.urlPagina = "https://github.com/" + OWNER + "/" + REPO + "/commit/" + shaCompleto;
             resultado.urlApk = null;
 
-            resultado.temAtualizacao = shaConhecido != null && !shaConhecido.equals(shaCompleto);
+            // Determina se há atualização comparando:
+            // 1. Se temos o SHA anterior salvo e é diferente do atual
+            // 2. OU se há um parent commit (indicando que este é mais novo que o anterior)
+            SharedPreferences prefs = context.getSharedPreferences("NetworkPrefs", Context.MODE_PRIVATE);
+            String chavePrefs = "commit_ultimo_sha_" + branch;
+            String shaConhecido = prefs.getString(chavePrefs, null);
+            
+            // Considera atualização se:
+            // - É o primeiro check (shaConhecido == null) E há parent commit
+            // - OU o SHA mudou desde o último check
+            if (shaConhecido == null) {
+                // Primeira verificação - assume que precisa atualizar se houver histórico
+                resultado.temAtualizacao = parentSha != null;
+                timber.log.Timber.d("Primeira verificacao de commit na branch %s. Parent: %s, Tem atualizacao: %b", 
+                    branch, parentSha, resultado.temAtualizacao);
+            } else {
+                resultado.temAtualizacao = !shaConhecido.equals(shaCompleto);
+                timber.log.Timber.d("Comparacao de commit: conhecido=%s, atual=%s, temAtualizacao=%b", 
+                    shaConhecido, shaCompleto, resultado.temAtualizacao);
+            }
+            
+            // Atualiza o SHA conhecido no cache
             prefs.edit().putString(chavePrefs, shaCompleto).apply();
 
         } catch (Exception e) {
+            timber.log.Timber.e(e, "Erro ao verificar commit na branch");
             resultado.mensagemErro = "Erro ao verificar: " + e.getMessage();
         } finally {
             if (conn != null) conn.disconnect();

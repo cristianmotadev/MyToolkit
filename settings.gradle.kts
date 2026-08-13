@@ -14,6 +14,11 @@ pluginManagement {
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
+toolchainManagement {
+    jvm {
+        provisioningStrategy.set(org.gradle.jvm.toolchain.JvmToolchainProvisioningStrategy.LOCAL_ONLY)
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

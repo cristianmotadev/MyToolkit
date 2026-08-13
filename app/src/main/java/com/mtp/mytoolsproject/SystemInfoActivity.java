@@ -15,17 +15,53 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
+import timber.log.Timber;
 
 /**
  * Mostra informações detalhadas do aparelho: modelo, Android, CPU, RAM,
  * armazenamento, bateria, kernel e sensores disponíveis.
+ * 
+ * Melhorias implementadas:
+ * - Detecção de root usando RootBeer
+ * - Logging estruturado com Timber
+ * - Tratamento adequado de exceções
  */
 public class SystemInfoActivity extends AppCompatActivity {
+
+    private boolean isRooted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_system_info);
+
+        // Verifica root de forma assíncrona
+        RootUtils.checkRootAsync(this, new RootUtils.RootCheckCallback() {
+            @Override
+            public void onResult(boolean rooted) {
+                isRooted = rooted;
+                runOnUiThread(() -> {
+                    TextView txtRootStatus = findViewById(R.id.txtInfoRoot);
+                    if (txtRootStatus != null) {
+                        txtRootStatus.setText(rooted 
+                            ? "⚠️ ROOT DETECTADO - Dispositivo comprometido\n" +
+                              "Funcionalidades podem estar limitadas por segurança."
+                            : "✅ Dispositivo seguro - Sem root detectado");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception error) {
+                Timber.e(error, "Erro na verificação de root");
+                runOnUiThread(() -> {
+                    TextView txtRootStatus = findViewById(R.id.txtInfoRoot);
+                    if (txtRootStatus != null) {
+                        txtRootStatus.setText("❓ Não foi possível verificar status de root");
+                    }
+                });
+            }
+        });
 
         TextView txtDispositivo = findViewById(R.id.txtInfoDispositivo);
         TextView txtCpu = findViewById(R.id.txtInfoCpu);
@@ -82,7 +118,7 @@ public class SystemInfoActivity extends AppCompatActivity {
             txtBateria.setText("🔋 Não foi possível ler o status da bateria.");
         }
 
-        txtKernel.setText("🐧 Kernel: " + lerKernelViaRoot());
+        txtKernel.setText("🐧 Kernel: " + lerKernel(isRooted));
 
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> sensores = sensorManager != null ? sensorManager.getSensorList(Sensor.TYPE_ALL) : null;
@@ -95,16 +131,31 @@ public class SystemInfoActivity extends AppCompatActivity {
         txtSensores.setText(listaSensores.toString());
     }
 
-    private String lerKernelViaRoot() {
-        try {
-            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat /proc/version"});
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String linha = reader.readLine();
-            process.waitFor();
-            return linha != null ? linha : System.getProperty("os.version");
-        } catch (Exception e) {
-            return System.getProperty("os.version", "desconhecido");
+    /**
+     * Lê informações do kernel, tentando acesso root se disponível.
+     * 
+     * @param comRoot true se dispositivo tem root, false caso contrário
+     * @return Versão do kernel ou mensagem de erro
+     */
+    private String lerKernel(boolean comRoot) {
+        if (comRoot) {
+            try {
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "cat /proc/version"});
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String linha = reader.readLine();
+                process.waitFor();
+                if (linha != null) {
+                    Timber.d("Kernel lido via root: %s", linha.substring(0, Math.min(50, linha.length())) + "...");
+                    return linha;
+                }
+            } catch (Exception e) {
+                Timber.w(e, "Falha ao ler kernel via root, fallback para método padrão");
+            }
+        } else {
+            Timber.v("Dispositivo sem root - usando método padrão para ler kernel");
         }
+        
+        return System.getProperty("os.version", "desconhecido");
     }
 
     private String formatarBytes(long bytes) {

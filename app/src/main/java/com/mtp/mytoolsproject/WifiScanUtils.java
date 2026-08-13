@@ -4,20 +4,35 @@ import android.net.wifi.ScanResult;
 import android.os.Build;
 import java.nio.ByteBuffer;
 
+import timber.log.Timber;
+
 /**
  * Utilitários para interpretar os dados brutos que o Android retorna
  * de cada rede Wi-Fi encontrada em uma varredura (ScanResult).
+ * 
+ * Melhorias implementadas:
+ * - Logging estruturado com Timber
+ * - Validação de entrada mais robusta
+ * - Documentação aprimorada
  */
 public final class WifiScanUtils {
+
+    private static final String TAG = "WifiScanUtils";
 
     private WifiScanUtils() {}
 
     /**
      * Interpreta o campo "capabilities" do ScanResult (ex: "[WPA2-PSK-CCMP][WPS][ESS]")
      * e devolve um rótulo de segurança legível.
+     * 
+     * @param capabilities string de capacidades da rede Wi-Fi
+     * @return rótulo de segurança (WPA3, WPA2, WPA, WEP, Aberta)
      */
     public static String interpretarSeguranca(String capabilities) {
-        if (capabilities == null || capabilities.isEmpty()) return "Aberta";
+        if (capabilities == null || capabilities.isEmpty()) {
+            Timber.v("Capabilities nula ou vazia, classificando como 'Aberta'");
+            return "Aberta";
+        }
 
         String cap = capabilities.toUpperCase();
         boolean temWpa3 = cap.contains("WPA3") || cap.contains("SAE");
@@ -35,16 +50,28 @@ public final class WifiScanUtils {
 
         if (temEnterprise) sb.append(" Enterprise");
 
-        return sb.toString();
+        String resultado = sb.toString();
+        Timber.d("Segurança interpretada: %s (capabilities: %s)", resultado, capabilities);
+        return resultado;
     }
 
+    /**
+     * Verifica se a rede é aberta (sem criptografia).
+     * 
+     * @param capabilities string de capacidades da rede
+     * @return true se a rede for aberta
+     */
     public static boolean ehRedeAberta(String capabilities) {
-        return interpretarSeguranca(capabilities).equals("Aberta");
+        boolean aberta = interpretarSeguranca(capabilities).equals("Aberta");
+        Timber.v("Rede aberta: %b", aberta);
+        return aberta;
     }
 
     /** Detecção passiva: apenas lê se o roteador anuncia WPS no beacon, sem tentar autenticar em nada. */
     public static boolean possuiWps(String capabilities) {
-        return capabilities != null && capabilities.toUpperCase().contains("WPS");
+        boolean temWps = capabilities != null && capabilities.toUpperCase().contains("WPS");
+        Timber.v("WPS detectado: %b", temWps);
+        return temWps;
     }
 
     /**
@@ -63,7 +90,15 @@ public final class WifiScanUtils {
      * informação não fica disponível para nenhum app dentro do sandbox do Android.
      */
     public static boolean possuiWpsAvancado(ScanResult resultado) {
-        if (possuiWps(resultado.capabilities)) return true;
+        if (resultado == null) {
+            Timber.w("ScanResult nulo fornecido para possuiWpsAvancado");
+            return false;
+        }
+        
+        if (possuiWps(resultado.capabilities)) {
+            Timber.d("WPS detectado via capabilities");
+            return true;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
@@ -75,45 +110,106 @@ public final class WifiScanUtils {
                             buffer.get(oui);
                             boolean ehOuiWps = (oui[0] & 0xFF) == 0x00 && (oui[1] & 0xFF) == 0x50
                                     && (oui[2] & 0xFF) == 0xF2 && (oui[3] & 0xFF) == 0x04;
-                            if (ehOuiWps) return true;
+                            if (ehOuiWps) {
+                                Timber.d("WPS detectado via Information Element (OUI 00:50:F2:04)");
+                                return true;
+                            }
                         }
                     }
                 }
-            } catch (Exception ignored) {
-                // Alguns aparelhos/ROMs podem restringir o acesso aos IEs brutos; nesse
-                // caso caímos de volta silenciosamente para o resultado do método raso acima.
+            } catch (Exception e) {
+                Timber.e(e, "Erro ao analisar Information Elements para detecção de WPS");
             }
+        } else {
+            Timber.v("Android < R, usando apenas detecção básica de WPS");
         }
+        
+        Timber.v("WPS não detectado");
         return false;
     }
 
+    /**
+     * Verifica se a rede usa criptografia fraca (WEP ou WPA original).
+     * 
+     * @param capabilities string de capacidades da rede
+     * @return true se usar criptografia fraca
+     */
     public static boolean usaCriptografiaFraca(String capabilities) {
         String seguranca = interpretarSeguranca(capabilities);
-        return seguranca.equals("WEP") || seguranca.equals("WPA");
+        boolean fraca = seguranca.equals("WEP") || seguranca.equals("WPA");
+        Timber.d("Criptografia fraca: %b (%s)", fraca, seguranca);
+        return fraca;
     }
 
-    /** Converte a frequência (MHz) em número de canal Wi-Fi, cobrindo 2.4GHz, 5GHz e 6GHz (Wi-Fi 6E). */
+    /** 
+     * Converte a frequência (MHz) em número de canal Wi-Fi, cobrindo 2.4GHz, 5GHz e 6GHz (Wi-Fi 6E).
+     * 
+     * @param freqMhz frequência em MHz
+     * @return número do canal ou -1 se desconhecido
+     */
     public static int frequenciaParaCanal(int freqMhz) {
-        if (freqMhz == 2484) return 14;
-        if (freqMhz >= 2412 && freqMhz <= 2472) return (freqMhz - 2412) / 5 + 1;
-        if (freqMhz >= 5170 && freqMhz <= 5825) return (freqMhz - 5000) / 5;
-        if (freqMhz >= 5925 && freqMhz <= 7125) return (freqMhz - 5950) / 5 + 1;
-        return -1;
+        int canal;
+        if (freqMhz == 2484) {
+            canal = 14;
+        } else if (freqMhz >= 2412 && freqMhz <= 2472) {
+            canal = (freqMhz - 2412) / 5 + 1;
+        } else if (freqMhz >= 5170 && freqMhz <= 5825) {
+            canal = (freqMhz - 5000) / 5;
+        } else if (freqMhz >= 5925 && freqMhz <= 7125) {
+            canal = (freqMhz - 5950) / 5 + 1;
+        } else {
+            canal = -1;
+            Timber.v("Frequência desconhecida: %d MHz", freqMhz);
+        }
+        
+        Timber.v("Frequência %d MHz -> Canal %d", freqMhz, canal);
+        return canal;
     }
 
+    /**
+     * Determina a banda de frequência (2.4 GHz, 5 GHz, 6 GHz).
+     * 
+     * @param freqMhz frequência em MHz
+     * @return nome da banda
+     */
     public static String bandaDaFrequencia(int freqMhz) {
-        if (freqMhz >= 2400 && freqMhz < 2500) return "2.4 GHz";
-        if (freqMhz >= 4900 && freqMhz < 5925) return "5 GHz";
-        if (freqMhz >= 5925 && freqMhz < 7125) return "6 GHz";
-        return "Desconhecida";
+        String banda;
+        if (freqMhz >= 2400 && freqMhz < 2500) {
+            banda = "2.4 GHz";
+        } else if (freqMhz >= 4900 && freqMhz < 5925) {
+            banda = "5 GHz";
+        } else if (freqMhz >= 5925 && freqMhz < 7125) {
+            banda = "6 GHz";
+        } else {
+            banda = "Desconhecida";
+            Timber.v("Banda desconhecida para frequência: %d MHz", freqMhz);
+        }
+        
+        Timber.v("Frequência %d MHz -> Banda %s", freqMhz, banda);
+        return banda;
     }
 
-    /** Classifica a força do sinal (RSSI em dBm) em um rótulo qualitativo. */
+    /** 
+     * Classifica a força do sinal (RSSI em dBm) em um rótulo qualitativo.
+     * 
+     * @param rssiDbm força do sinal em dBm
+     * @return classificação qualitativa (Excelente, Bom, Regular, Fraco, Muito fraco)
+     */
     public static String qualidadeSinal(int rssiDbm) {
-        if (rssiDbm >= -50) return "Excelente";
-        if (rssiDbm >= -60) return "Bom";
-        if (rssiDbm >= -70) return "Regular";
-        if (rssiDbm >= -80) return "Fraco";
-        return "Muito fraco";
+        String qualidade;
+        if (rssiDbm >= -50) {
+            qualidade = "Excelente";
+        } else if (rssiDbm >= -60) {
+            qualidade = "Bom";
+        } else if (rssiDbm >= -70) {
+            qualidade = "Regular";
+        } else if (rssiDbm >= -80) {
+            qualidade = "Fraco";
+        } else {
+            qualidade = "Muito fraco";
+        }
+        
+        Timber.v("RSSI %d dBm -> Qualidade: %s", rssiDbm, qualidade);
+        return qualidade;
     }
 }
