@@ -1,3 +1,4 @@
+
 # 🛠️ My Toolkit v1.0
 
 Um conjunto completo de ferramentas de rede, segurança e utilidades para Android
@@ -23,7 +24,8 @@ O projeto nasceu com o objetivo de explorar, na prática, conceitos de redes, se
 | Teste de Velocidade | Mede ping, download e upload usando endpoints públicos |
 | Calculadora de Sub-rede | Calcula máscara, endereço de rede, broadcast e faixa de hosts a partir de um IP/CIDR |
 | Senhas Wi-Fi Salvas | Lê senhas salvas no sistema (via root), mantém backup próprio (sobrevive a "esquecer" a rede), copia e compartilha via texto ou QR Code |
-| Monitoramento mDNS em segundo plano | Escuta contínua que captura o nome dos dispositivos via mDNS — inclusive aparelhos que saem do modo de economia de energia — com intervalo configurável e notificação ao encontrar dispositivo novo |
+| Monitoramento mDNS em segundo plano | Escuta contínua que captura o nome dos dispositivos via mDNS — inclusive aparelhos que saem do modo de economia de energia — com intervalo configurável e notificação ao encontrar dispositivo novo
+| Wake-on-LAN | Acorda dispositivos da rede local via magic packet, direto do cartão de um dispositivo salvo |
 
 ## 📲 Módulo NFC
 
@@ -51,6 +53,7 @@ O projeto nasceu com o objetivo de explorar, na prática, conceitos de redes, se
 |Informações do Sistema:| specs de hardware, kernel, sensores e bateria
 |Gerenciamento de dispositivos salvos:| busca por nome, MAC, IP ou fabricante, com edição e exclusão de registros do histórico
 |Exportar/Importar| banco de dados e relatórios em PDF para documentação/evidência, além de limpeza total do banco
+|Gerenciamento de dispositivos salvos:| busca por nome, MAC, IP ou fabricante, edição e exclusão de registros do histórico, e Wake-on-LAN (⚡ LIGAR) para acordar dispositivos na rede via magic packet
 
 ## ⚙️ Configurações e Personalização
 
@@ -75,12 +78,17 @@ Em substituição, o app implementa auditoria passiva: identifica e alerta sobre
 
 ## 🏗️ Arquitetura Técnica
 
-Linguagem: Java · Plataforma: Android nativo (minSdk 26)
-Persistência: arquivos JSON próprios (sem banco de dados relacional), SharedPreferences para configurações
-Segundo plano: `Foreground Services` dedicados para varredura contínua (rede local, Wi-Fi e mDNS)
-APIs nativas usadas: NFC (`NfcAdapter`, `MifareClassic`, `IsoDep`), Wi-Fi (`WifiManager`), Bluetooth (`BluetoothAdapter`, `BluetoothLeScanner`), Biometria (`BiometricPrompt`), PDF (`PdfDocument`), Criptografia (AES-256/GCM + PBKDF2)
-Bibliotecas externas: ZXing (geração de QR Code), Biometric (AndroidX)
-Requisito de sistema: acesso root (testado com Magisk)
+ - Linguagem: Java · Plataforma: Android nativo (minSdk 26)
+ - Persistência: arquivos JSON próprios (sem banco de dados relacional),
+   SharedPreferences para configurações
+ - Segundo plano: `Foreground Services` dedicados para varredura
+   contínua (rede local, Wi-Fi e mDNS)
+ - APIs nativas usadas: NFC (`NfcAdapter`, `MifareClassic`, `IsoDep`),
+   Wi-Fi (`WifiManager`), Bluetooth (`BluetoothAdapter`,
+   `BluetoothLeScanner`), Biometria (`BiometricPrompt`), PDF
+   (`PdfDocument`), Criptografia (AES-256/GCM + PBKDF2)
+ - Bibliotecas externas: ZXing (geração de QR Code), Biometric
+   (AndroidX) Requisito de sistema: acesso root (testado com Magisk)
 
 ## 📦 Repositório
 
