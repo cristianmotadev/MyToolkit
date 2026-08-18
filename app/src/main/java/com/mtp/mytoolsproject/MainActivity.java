@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
+
+    private boolean hasRoot = false;
+    
+    // Lista de IDs dos cards que NÃO funcionam sem root
+    private static final int[] CARDS_REQUEREM_ROOT = {
+        R.id.cardWifi,           // Senhas Wi-Fi Salvas
+        R.id.cardScanner,        // Radar de Dispositivos (Rede Local)
+        R.id.cardSpeedTest,      // Teste de Velocidade (Ping)
+        R.id.cardTraceroute,     // Traceroute
+        R.id.cardSystemInfo      // Informações Detalhadas do Sistema
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         criarCanalNotificacao();
+        
+        // Verificar root ao iniciar
+        verificarRootEAplicarVisual();
 
         CardView cardWifi = findViewById(R.id.cardWifi);
         CardView cardScanner = findViewById(R.id.cardScanner);
@@ -161,6 +176,94 @@ public class MainActivity extends AppCompatActivity {
         });
 
         verificarAtualizacaoEmSegundoPlano();
+    }
+
+    /**
+     * Verifica se o dispositivo possui root e aplica o visual adequado nos cards.
+     * Se não tiver root, mostra um popup informativo e deixa os cards que requerem
+     * root em vermelho.
+     */
+    private void verificarRootEAplicarVisual() {
+        new Thread(() -> {
+            hasRoot = NetworkUtils.verificarRootDisponivel();
+            runOnUiThread(() -> {
+                // Aplica a cor dos cards baseado no status do root
+                aplicarVisualCards();
+                
+                // Se não tem root e usuário não optou por não mostrar, exibe popup informativo
+                if (!hasRoot) {
+                    SharedPreferences prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
+                    boolean naoMostrar = prefs.getBoolean("nao_mostrar_aviso_root", false);
+                    if (!naoMostrar) {
+                        mostrarPopupSemRoot();
+                    }
+                }
+            });
+        }).start();
+    }
+
+    /**
+     * Aplica a cor vermelha nos cards que não funcionam sem root.
+     */
+    private void aplicarVisualCards() {
+        int colorSurface = ContextCompat.getColor(this, R.color.colorSurface);
+        int colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary);
+        int colorRedBackground = Color.parseColor("#FFEBEE");
+        int colorStrokeRed = Color.parseColor("#D32F2F");
+        
+        for (int cardId : CARDS_REQUEREM_ROOT) {
+            CardView card = findViewById(cardId);
+            if (card != null) {
+                if (!hasRoot) {
+                    // Card em vermelho para indicar que não funciona sem root
+                    card.setCardBackgroundColor(colorRedBackground);
+                    card.setStrokeColor(colorStrokeRed);
+                    
+                    // Torna o card menos interativo visualmente
+                    card.setAlpha(0.7f);
+                } else {
+                    // Cor normal quando tem root
+                    card.setCardBackgroundColor(colorSurface);
+                    card.setStrokeColor(colorPrimary);
+                    card.setAlpha(1.0f);
+                }
+            }
+        }
+    }
+
+    /**
+     * Mostra popup informando quais ferramentas funcionam e quais não funcionam sem root.
+     */
+    private void mostrarPopupSemRoot() {
+        StringBuilder mensagem = new StringBuilder();
+        mensagem.append("⚠️ Root não detectado!\n\n");
+        mensagem.append("✅ Funcionam SEM root:\n");
+        mensagem.append("• Radar Wi-Fi\n");
+        mensagem.append("• Radar Bluetooth\n");
+        mensagem.append("• Scanner de Portas\n");
+        mensagem.append("• Consulta DNS\n");
+        mensagem.append("• Calculadora de Sub-rede\n");
+        mensagem.append("• Ferramentas NFC\n");
+        mensagem.append("• Auditoria de Apps\n");
+        mensagem.append("• Gerador de Senhas\n");
+        mensagem.append("• Calculadora de Hash\n");
+        mensagem.append("• Criptografia de Arquivos\n\n");
+        mensagem.append("❌ NÃO funcionam sem root (cards em vermelho):\n");
+        mensagem.append("• Senhas Wi-Fi Salvas\n");
+        mensagem.append("• Radar de Dispositivos (Rede Local)\n");
+        mensagem.append("• Teste de Velocidade (Ping)\n");
+        mensagem.append("• Traceroute\n");
+        mensagem.append("• Informações Detalhadas do Sistema");
+        
+        new AlertDialog.Builder(this)
+            .setTitle("⚠️ Aviso de Compatibilidade")
+            .setMessage(mensagem.toString())
+            .setPositiveButton("Entendi", null)
+            .setNeutralButton("Não mostrar novamente", (dialog, which) -> {
+                SharedPreferences prefs = getSharedPreferences("NetworkPrefs", MODE_PRIVATE);
+                prefs.edit().putBoolean("nao_mostrar_aviso_root", true).apply();
+            })
+            .show();
     }
 
     /**
