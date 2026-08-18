@@ -364,7 +364,27 @@ public class SettingsActivity extends AppCompatActivity {
                     txtStatusRoot.setText("✅ Root detectado e concedido — todas as ferramentas devem funcionar normalmente.");
                     txtStatusRoot.setTextColor(0xFF4CAF50);
                 } else {
-                    txtStatusRoot.setText("❌ Root não detectado (ou não concedido). Ferramentas que dependem de root (Senhas Wi-Fi, Dispositivos na Rede, mDNS) não vão funcionar.");
+                    StringBuilder mensagem = new StringBuilder();
+                    mensagem.append("❌ Root não detectado.\n\n");
+                    mensagem.append("✅ Funcionam SEM root:\n");
+                    mensagem.append("• Radar Wi-Fi\n");
+                    mensagem.append("• Radar Bluetooth\n");
+                    mensagem.append("• Scanner de Portas\n");
+                    mensagem.append("• Consulta DNS\n");
+                    mensagem.append("• Calculadora de Sub-rede\n");
+                    mensagem.append("• Ferramentas NFC\n");
+                    mensagem.append("• Auditoria de Apps\n");
+                    mensagem.append("• Gerador de Senhas\n");
+                    mensagem.append("• Calculadora de Hash\n");
+                    mensagem.append("• Criptografia de Arquivos\n\n");
+                    mensagem.append("❌ NÃO funcionam sem root:\n");
+                    mensagem.append("• Senhas Wi-Fi Salvas\n");
+                    mensagem.append("• Radar de Dispositivos (Rede Local)\n");
+                    mensagem.append("• Teste de Velocidade (Ping)\n");
+                    mensagem.append("• Traceroute\n");
+                    mensagem.append("• Informações Detalhadas do Sistema");
+                    
+                    txtStatusRoot.setText(mensagem.toString());
                     txtStatusRoot.setTextColor(0xFFFF5252);
                 }
             });
