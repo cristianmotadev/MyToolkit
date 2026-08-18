@@ -7,7 +7,6 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -121,20 +120,16 @@ public class MainActivity extends AppCompatActivity {
      */
     private void destacarCardsSemRoot() {
         // Cards que NÃO funcionam sem root (vermelho)
-        int corVermelha = Color.parseColor("#FF5252");
-        int corBordaVermelha = Color.parseColor("#D32F2F");
-
+        
         // Senhas Wi-Fi Salvas
-        cardWifi.setCardBackgroundColor(corVermelha);
-        cardWifi.setStrokeColor(corBordaVermelha);
-
+        cardWifi.setBackgroundResource(R.drawable.card_border_red);
+    
         // Radar de Dispositivos na Rede Local
-        cardScanner.setCardBackgroundColor(corVermelha);
-        cardScanner.setStrokeColor(corBordaVermelha);
-
+        cardScanner.setBackgroundResource(R.drawable.card_border_red);
+    
         // Configurações (contém switch do mDNS que requer root)
         // O card em si ainda é útil para outras configurações, mas destacamos que tem funcionalidade limitada
-        cardConfig.setStrokeColor(corBordaVermelha);
+        cardConfig.setBackgroundResource(R.drawable.card_border_red);
     }
 
     /**
