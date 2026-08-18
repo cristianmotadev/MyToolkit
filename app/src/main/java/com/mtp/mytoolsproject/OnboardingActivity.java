@@ -37,6 +37,8 @@ public class OnboardingActivity extends AppCompatActivity {
                     "Proteja o app com PIN ou biometria. Suas senhas Wi-Fi ficam salvas mesmo se você esquecer a rede no sistema."),
             new Pagina("🔑", "Root Necessário",
                     "Várias ferramentas (Senhas Wi-Fi, Radar de Dispositivos, mDNS) dependem de acesso root para funcionar por completo."),
+            new Pagina("⚠️", "Sem Root?",
+                    "Sem root você ainda pode usar: Radar Wi-Fi, Radar Bluetooth, Scanner de Portas, Consulta DNS, Calculadora de Sub-rede, Ferramentas NFC, Auditoria de Apps, Gerador de Senhas, Calculadora de Hash e Criptografia de Arquivos."),
     };
 
     private int paginaAtual = 0;
