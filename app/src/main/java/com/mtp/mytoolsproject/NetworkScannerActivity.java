@@ -1,5 +1,6 @@
 package com.mtp.mytoolsproject;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -147,6 +148,18 @@ public class NetworkScannerActivity extends AppCompatActivity {
             Toast.makeText(this, "Ainda terminando a varredura anterior — aguarde.", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Verifica se há root antes de tentar executar a varredura que depende de ARP via root
+        if (!NetworkUtils.verificarRootDisponivel()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("⚠️ Root necessário")
+                    .setMessage("A ferramenta 'Radar de Dispositivos na Rede' requer acesso root para ler a tabela ARP do sistema.\n\nSem root, esta funcionalidade não está disponível.")
+                    .setPositiveButton("Entendido", (dialog, which) -> {})
+                    .setCancelable(false)
+                    .show();
+            return;
+        }
+
         varreduraEmAndamento = true;
 
         containerNetworkCards.removeAllViews();

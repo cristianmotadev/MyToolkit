@@ -58,6 +58,19 @@ public class WifiPasswordsActivity extends AppCompatActivity {
         LinearLayout container = findViewById(R.id.containerWifiCards);
         LayoutInflater inflater = LayoutInflater.from(this);
 
+        // Verifica se há root antes de tentar ler as senhas
+        if (!NetworkUtils.verificarRootDisponivel()) {
+            runOnUiThread(() -> {
+                new AlertDialog.Builder(this)
+                        .setTitle("⚠️ Root necessário")
+                        .setMessage("A ferramenta 'Senhas Wi-Fi Salvas' requer acesso root para funcionar.\n\nSem root, esta funcionalidade não está disponível.")
+                        .setPositiveButton("Entendido", (dialog, which) -> finish())
+                        .setCancelable(false)
+                        .show();
+            });
+            return;
+        }
+
         new Thread(() -> {
             try {
                 Map<String, String> redesAoVivo = lerRedesAoVivo();
