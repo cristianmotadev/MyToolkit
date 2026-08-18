@@ -6,6 +6,18 @@ plugins {
 
 }
 
+// Função para obter o hash curto do commit Git
+fun getGitCommitHash(): String {
+    return try {
+        val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+        process.inputStream.bufferedReader().readText().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
+}
+
+val gitCommitHash = getGitCommitHash()
+
 
 
 android {
@@ -26,7 +38,7 @@ android {
 
         versionCode = 1
 
-        versionName = "1.0"
+        versionName = "1.0-${gitCommitHash}"
 
 
 
