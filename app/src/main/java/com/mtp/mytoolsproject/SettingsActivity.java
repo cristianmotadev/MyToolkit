@@ -176,6 +176,17 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         switchMdns.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Verifica se tem root antes de ativar o monitoramento mDNS
+            if (isChecked && !NetworkUtils.verificarRootDisponivel()) {
+                switchMdns.setChecked(false);
+                new AlertDialog.Builder(this)
+                        .setTitle("⚠️ Root Necessário")
+                        .setMessage("O Monitoramento mDNS em segundo plano requer acesso root para ler a tabela ARP do sistema.\n\nSem root, esta funcionalidade não está disponível.")
+                        .setPositiveButton("Entendido", null)
+                        .show();
+                return;
+            }
+
             prefs.edit().putBoolean("mdns_continuous", isChecked).apply();
 
             Intent serviceIntent = new Intent(SettingsActivity.this, NetworkMonitorService.class);
@@ -364,8 +375,31 @@ public class SettingsActivity extends AppCompatActivity {
                     txtStatusRoot.setText("✅ Root detectado e concedido — todas as ferramentas devem funcionar normalmente.");
                     txtStatusRoot.setTextColor(0xFF4CAF50);
                 } else {
-                    txtStatusRoot.setText("❌ Root não detectado (ou não concedido). Ferramentas que dependem de root (Senhas Wi-Fi, Dispositivos na Rede, mDNS) não vão funcionar.");
-                    txtStatusRoot.setTextColor(0xFFFF5252);
+                    String mensagemSemRoot = "❌ Root não detectado (ou não concedido).\n\n" +
+                            "🔧 Ferramentas que FUNCIONAM sem root:\n" +
+                            "• Radar Wi-Fi (redes próximas)\n" +
+                            "• Radar Bluetooth\n" +
+                            "• Scanner de Portas\n" +
+                            "• Traceroute\n" +
+                            "• Consulta DNS\n" +
+                            "• Teste de Velocidade\n" +
+                            "• Calculadora de Sub-rede\n" +
+                            "• Wake-on-LAN\n" +
+                            "• Módulo NFC (leitura/escrita, MIFARE, EMV)\n" +
+                            "• Gerador de Senhas\n" +
+                            "• Calculadora de Hash\n" +
+                            "• Criptografar Arquivo\n" +
+                            "• Auditoria de Apps Instalados\n" +
+                            "• Informações do Sistema\n" +
+                            "• Gerenciamento de dispositivos salvos\n" +
+                            "• Exportar/Importar banco de dados\n" +
+                            "• Gerador de Senhas e Criptografia\n\n" +
+                            "⚠️ Ferramentas que NÃO funcionam sem root:\n" +
+                            "• Senhas Wi-Fi Salvas\n" +
+                            "• Monitoramento mDNS em segundo plano\n" +
+                            "• Radar de Dispositivos na Rede Local (varrição completa)";
+                    txtStatusRoot.setText(mensagemSemRoot);
+                    txtStatusRoot.setTextColor(0xFFFF9800);
                 }
             });
         }).start();
