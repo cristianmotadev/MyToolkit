@@ -1,103 +1,644 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#121212">
+    android:padding="16dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="⚙️ Configurações da Rede"
-        android:textSize="20sp"
+        android:text="⚙️ Configurações"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorTextPrimary"
         android:paddingBottom="16dp"/>
 
-    <!-- Switch para mDNS Contínuo -->
-    <Switch
-        android:id="@+id/switchMdns"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Escaneamento Contínuo mDNS (Segundo Plano)"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"/>
-
+    <!-- ================= APARÊNCIA ================= -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Deixa a escuta ativa para capturar o nome de aparelhos que saem do modo de economia de energia."
-        android:textColor="#AAAAAA"
-        android:textSize="12sp"
-        android:paddingBottom="24dp"/>
+        android:text="APARÊNCIA"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
 
-    <!-- Switch para Permissão de Localização (Pop-up Nativo) -->
-    <Switch
-        android:id="@+id/switchLocationPermission"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Permissão de Localização (Capturar Wi-Fi)"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"/>
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Necessário para o Android conseguir ler o nome da rede Wi-Fi atual durante a varredura."
-        android:textColor="#AAAAAA"
-        android:textSize="12sp"
-        android:paddingBottom="24dp"/>
-
-    <!-- Botão para Editar JSON -->
-    <Button
-        android:id="@+id/btnEditJson"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="👥 Gerenciar Dispositivos Salvos"
-        android:backgroundTint="#1E88E5"
-        android:textColor="#FFFFFF"
-        android:padding="12dp"/>
-
-    <!-- Configuração do Intervalo de Tempo -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Intervalo de Escaneamento (Segundos):"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:paddingTop="16dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingTop="4dp"
-        android:paddingBottom="16dp">
-
-        <EditText
-            android:id="@+id/editIntervalo"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:text="30"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#2196F3"/>
+            android:orientation="vertical"
+            android:padding="14dp">
 
-        <Button
-            android:id="@+id/btnSalvarIntervalo"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Tema do aplicativo:"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupTema"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioTemaEscuro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="🌙 Escuro"
+                    android:textColor="@color/colorTextPrimary"/>
+
+                <RadioButton
+                    android:id="@+id/radioTemaClaro"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="☀️ Claro"
+                    android:textColor="@color/colorTextPrimary"/>
+
+                <RadioButton
+                    android:id="@+id/radioTemaSistema"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary"
+                    android:text="📱 Sistema"
+                    android:textColor="@color/colorTextPrimary"/>
+            </RadioGroup>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= STATUS DO SISTEMA ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="STATUS DO SISTEMA"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="OK"
-            android:backgroundTint="#2196F3"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="8dp"/>
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Button
+                android:id="@+id/btnVerificarRoot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔑 Verificar Acesso Root"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <TextView
+                android:id="@+id/txtStatusRoot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Toque no botão acima para verificar."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <TextView
+                android:id="@+id/txtStatusNotificacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Verificando permissão de notificações..."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <TextView
+                android:id="@+id/txtVersaoApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Toolkit"
+                android:textColor="@color/colorTextHint"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Canal de atualização:"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupCanalAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioCanalOficial"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:checked="true"
+                    android:text="🟢 Oficial (main)"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+
+                <RadioButton
+                    android:id="@+id/radioCanalBeta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:text="🟠 Beta (develop)"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Tipo de verificação:"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <RadioGroup
+                android:id="@+id/radioGroupTipoAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioTipoRelease"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:checked="true"
+                    android:text="📦 Releases"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+
+                <RadioButton
+                    android:id="@+id/radioTipoCommit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:buttonTint="#2196F3"
+                    android:text="🔀 Commits"
+                    android:textColor="@color/colorTextPrimary"
+                    android:textSize="13sp"/>
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Releases podem trazer o instalador direto pelo app. Commits mostram só código-fonte no GitHub."
+                android:textColor="@color/colorTextHint"
+                android:textSize="11sp"/>
+
+            <Button
+                android:id="@+id/btnVerificarAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🔄 Verificar Atualizações"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <TextView
+                android:id="@+id/txtStatusAtualizacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="13sp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <Button
+                android:id="@+id/btnVerTutorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📘 Ver Tutorial Novamente"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <TextView
+                android:id="@+id/txtDesenvolvidoPor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👨‍💻 Desenvolvido por @cristianmotadev"
+                android:textColor="@color/colorPrimary"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= MONITORAMENTO EM SEGUNDO PLANO ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MONITORAMENTO EM SEGUNDO PLANO (mDNS)"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Switch
+                android:id="@+id/switchMdns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Escaneamento contínuo (segundo plano)"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Deixa a escuta ativa para capturar o nome de aparelhos que saem do modo de economia de energia."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Intervalo de escaneamento (segundos):"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"/>
+
+                <EditText
+                    android:id="@+id/editIntervalo"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="30"
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
+
+                <Button
+                    android:id="@+id/btnSalvarIntervalo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OK"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorDivider"/>
+
+            <Switch
+                android:id="@+id/switchNotificarNovos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notificar ao encontrar dispositivo novo"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= PERMISSÕES ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PERMISSÕES"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Switch
+                android:id="@+id/switchLocationPermission"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Permissão de localização (Wi-Fi)"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Necessário para o Android ler o nome da rede Wi-Fi atual e escanear redes próximas."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= INTERVALOS PADRÃO DOS SCANNERS ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="INTERVALOS PADRÃO DOS SCANNERS"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Define o valor inicial do modo automático nas telas de Redes Wi-Fi Próximas e Dispositivos na Rede."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="📡 Redes Wi-Fi Próximas (s):"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"/>
+
+                <EditText
+                    android:id="@+id/editIntervaloWifiPadrao"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="30"
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🌐 Dispositivos na Rede (s):"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"/>
+
+                <EditText
+                    android:id="@+id/editIntervaloNetworkPadrao"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="90"
+                    android:textColor="@color/colorTextPrimary"
+                    android:backgroundTint="@color/colorPrimary"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSalvarIntervalosPadrao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Salvar Intervalos Padrão"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="#FFFFFF"
+                android:padding="10dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= SEGURANÇA DO APP ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SEGURANÇA DO APP"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Switch
+                android:id="@+id/switchBloqueioApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Exigir PIN/Biometria ao abrir o app"
+                android:textColor="@color/colorTextPrimary"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Protege as senhas Wi-Fi e os dados de rede salvos contra acesso por outras pessoas com o celular em mãos."
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/btnAlterarPin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="🔑 Alterar PIN"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ================= BANCO DE DADOS ================= -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BANCO DE DADOS (JSON)"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Button
+                android:id="@+id/btnEditJson"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👥 Gerenciar Dispositivos Salvos"
+                android:backgroundTint="#1E88E5"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <Button
+                android:id="@+id/btnLimparCache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="🗑️ Limpar Banco de Dados"
+                android:backgroundTint="#D32F2F"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <Button
+                android:id="@+id/btnExportarCache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📤 Exportar Banco de Dados"
+                android:backgroundTint="#43A047"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+            <Button
+                android:id="@+id/btnImportarCache"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="📥 Importar Banco de Dados"
+                android:backgroundTint="#43A047"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>
+</ScrollView>

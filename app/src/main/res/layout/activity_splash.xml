@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="My Tools Project"
+        android:text="My Toolkit"
         android:textColor="#FFFFFF"
         android:textSize="26sp"
         android:textStyle="bold" />
@@ -34,5 +34,13 @@
         android:textColor="#2196F3"
         android:textSize="14sp"
         android:letterSpacing="0.1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Desenvolvido por @cristianmotadev"
+        android:textColor="#777777"
+        android:textSize="12sp" />
 
 </LinearLayout>

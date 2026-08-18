@@ -203,4 +203,51 @@ public final class NetworkUtils {
             return false;
         }
     }
+
+    // ---------------------------------------------------------------
+    // Verificação de root
+    // ---------------------------------------------------------------
+
+    /**
+     * Verifica de forma explícita se o binário "su" está disponível e concede acesso.
+     * Evita que as ferramentas do app falhem silenciosamente (catch genérico) sem
+     * o usuário entender o motivo — usado na tela de Configurações.
+     */
+    public static boolean verificarRootDisponivel() {
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(new String[]{"su", "-c", "id"});
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(process.getInputStream()));
+            String saida = reader.readLine();
+            int codigoSaida = process.waitFor();
+            return codigoSaida == 0 && saida != null && saida.contains("uid=0");
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (process != null) process.destroy();
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Formatação de tempo relativo (histórico de "última vez visto")
+    // ---------------------------------------------------------------
+
+    public static String formatarTempoRelativo(long timestampMillis) {
+        if (timestampMillis <= 0) return "Nunca registrado";
+
+        long diffMillis = System.currentTimeMillis() - timestampMillis;
+        long segundos = diffMillis / 1000;
+        long minutos = segundos / 60;
+        long horas = minutos / 60;
+        long dias = horas / 24;
+
+        if (segundos < 60) return "Visto agora mesmo";
+        if (minutos < 60) return "Visto há " + minutos + (minutos == 1 ? " minuto" : " minutos");
+        if (horas < 24) return "Visto há " + horas + (horas == 1 ? " hora" : " horas");
+        if (dias < 30) return "Visto há " + dias + (dias == 1 ? " dia" : " dias");
+
+        java.text.SimpleDateFormat formato = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+        return "Visto em " + formato.format(new java.util.Date(timestampMillis));
+    }
 }

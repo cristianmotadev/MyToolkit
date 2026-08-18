@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="🌐 Dispositivos na Rede"
+        android:text="📡 Radar de Dispositivos"
         android:textColor="#2196F3"
         android:textSize="22sp"
         android:textStyle="bold" />
@@ -19,15 +19,91 @@
         android:id="@+id/btnScan"
         android:layout_width="match_parent"
         android:layout_height="55dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="#2196F3"
-        android:text="🔍 Iniciar Varredura"
+        android:text="🔍 Iniciar Varredura (Manual)"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
 
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <Switch
+                android:id="@+id/switchAutoScanNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Varredura automática"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Intervalo (segundos):"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp" />
+
+                <EditText
+                    android:id="@+id/editIntervaloNetwork"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#2196F3"
+                    android:inputType="number"
+                    android:text="90"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtAvisoIntervaloNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textSize="12sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/progressBarNetworkScan"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txtProgressoNetworkScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text=""
+        android:textColor="#AAAAAA"
+        android:textSize="13sp" />
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:id="@+id/containerNetworkCards"

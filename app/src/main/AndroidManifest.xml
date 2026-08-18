@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -11,8 +12,27 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" tools:ignore="ForegroundServicePermission" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.NFC" />
+
+    <!-- Necessário para o app instalar diretamente a atualização baixada (Release com .apk anexado) -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Bluetooth clássico (Android 11 e anteriores) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- Bluetooth (Android 12+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+
+    <!-- Necessário para a Auditoria de Apps enxergar todos os pacotes instalados no Android 11+ -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
 
     <application
+        android:name=".MyToolsApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,18 +43,29 @@
         android:theme="@style/Theme.MyToolsProject"
         tools:targetApi="31">
 
-        <!-- Tela de Introdução (Splash) -->
+        <!-- Tela de Bloqueio (PIN/Biometria) — agora é a entrada do app -->
         <activity
-            android:name=".SplashActivity"
+            android:name=".LockActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyToolsProject"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/Theme.MyToolsProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Tela de Introdução (Splash) -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyToolsProject"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Tutorial de primeira abertura -->
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
 
         <!-- Tela Principal -->
         <activity
@@ -51,21 +82,116 @@
             android:name=".NetworkScannerActivity"
             android:exported="false" />
 
-        <!-- Tela de Configururações -->
+        <!-- Tela da Ferramenta 4 (Redes Wi-Fi Próximas + Auditoria WPS passiva) -->
+        <activity
+            android:name=".WifiScannerActivity"
+            android:exported="false" />
+
+        <!-- Tela da Ferramenta 5 (NFC: Ler/Escrever NDEF + Dump/Clonagem MIFARE Classic) -->
+        <activity
+            android:name=".NfcToolsActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <!-- Tela de Configurações -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false" />
+
+        <!-- Ferramenta: Calculadora de Sub-rede/CIDR -->
+        <activity
+            android:name=".SubnetCalculatorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Scanner de Porta Customizável -->
+        <activity
+            android:name=".PortScannerActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Teste de Velocidade -->
+        <activity
+            android:name=".SpeedTestActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Radar Bluetooth -->
+        <activity
+            android:name=".BluetoothScannerActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Traceroute -->
+        <activity
+            android:name=".TracerouteActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Consulta DNS -->
+        <activity
+            android:name=".DnsLookupActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Informações do Sistema -->
+        <activity
+            android:name=".SystemInfoActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Auditoria de Apps Instalados -->
+        <activity
+            android:name=".AppAuditActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Gerador de Senhas -->
+        <activity
+            android:name=".PasswordGeneratorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Calculadora de Hash -->
+        <activity
+            android:name=".HashCalculatorActivity"
+            android:exported="false" />
+
+        <!-- Ferramenta: Criptografia de Arquivos -->
+        <activity
+            android:name=".FileEncryptionActivity"
+            android:exported="false" />
+
+        <!-- Widget de Tela Inicial -->
+        <receiver
+            android:name=".MyToolkitWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
 
         <!-- Tela do Banco de Dados JSON -->
         <activity
             android:name=".ManageDevicesActivity"
             android:exported="false" />
 
-        <!-- Serviço de Monitoramento em Segundo Plano -->
+        <!-- Serviço de Monitoramento em Segundo Plano (Dispositivos na Rede) -->
         <service
             android:name=".NetworkMonitorService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- Serviço de Monitoramento em Segundo Plano (Radar Wi-Fi) -->
+        <service
+            android:name=".WifiScanBackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- FileProvider: necessário para exportar/compartilhar o banco de dados JSON -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

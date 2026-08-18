@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
+    android:background="@color/colorBackground">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="20dp">
 
@@ -13,7 +17,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="24dp"
         android:text="🛠️ Painel de Controle"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/colorTextPrimary"
         android:textSize="22sp"
         android:textStyle="bold" />
 
@@ -25,10 +29,10 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="14dp"
         app:cardElevation="6dp"
-        app:strokeColor="#2196F3"
+        app:strokeColor="@color/colorPrimary"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -54,7 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Senhas Wi-Fi Salvas"
-                    android:textColor="#2196F3"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -63,13 +67,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Exibir redes e senhas via Root"
-                    android:textColor="#AAAAAA"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Botão Card 2: Scanner de Rede -->
+    <!-- Botão Card 2: Radar de Dispositivos -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardScanner"
         android:layout_width="match_parent"
@@ -77,10 +81,10 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="14dp"
         app:cardElevation="6dp"
-        app:strokeColor="#2196F3"
+        app:strokeColor="@color/colorPrimary"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -93,7 +97,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🌐"
+                android:text="📡"
                 android:textSize="32sp" />
 
             <LinearLayout
@@ -105,8 +109,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Escaner de Rede"
-                    android:textColor="#2196F3"
+                    android:text="Radar de Dispositivos"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -115,7 +119,683 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Escanear IPs e endereços MAC"
-                    android:textColor="#AAAAAA"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão Card 3: Redes Wi-Fi Próximas + Auditoria WPS -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardWifiScan"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📡"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Radar Wi-Fi"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Segurança, canal, sinal e auditoria WPS"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão Card 4: Ferramentas NFC -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNfc"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📲"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ferramentas NFC"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Ler, escrever e clonar tags NFC"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Calculadora de Sub-rede -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSubnet"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧮"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calculadora de Sub-rede"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="CIDR, máscara, broadcast e hosts"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Scanner de Porta -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPortScanner"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔌"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scanner de Porta"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Faixa de portas customizável"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Teste de Velocidade -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSpeedTest"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚀"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Teste de Velocidade"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Ping, download e upload"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Radar Bluetooth -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardBluetooth"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔷"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Radar Bluetooth"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Dispositivos Bluetooth próximos"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Traceroute -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardTraceroute"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛰️"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Traceroute"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Rastreia o caminho até um destino"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Consulta DNS -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDns"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔎"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Consulta DNS"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Domínio ↔ IP, MX, TXT, NS"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Informações do Sistema -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardSystemInfo"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🖥️"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Informações do Sistema"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="CPU, RAM, armazenamento, bateria, kernel"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Auditoria de Apps -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardAppAudit"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔐"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Auditoria de Apps"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Apps e suas permissões sensíveis"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Gerador de Senhas -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPasswordGenerator"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔑"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gerador de Senhas"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Senhas fortes e aleatórias"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Calculadora de Hash -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardHashCalculator"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#️⃣"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Calculadora de Hash"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="MD5, SHA-1, SHA-256, SHA-512"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Botão: Criptografia de Arquivos -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardFileEncryption"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@color/colorSurface"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="6dp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔐"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Criptografar Arquivo"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="AES-256 com senha"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
@@ -129,10 +809,10 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="#1E1E1E"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="14dp"
         app:cardElevation="6dp"
-        app:strokeColor="#2196F3"
+        app:strokeColor="@color/colorPrimary"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -158,7 +838,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Configurações"
-                    android:textColor="#2196F3"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -167,10 +847,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:text="Gerenciar mDNS e banco de dados JSON"
-                    android:textColor="#AAAAAA"
+                    android:textColor="@color/colorTextSecondary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
 </LinearLayout>
+</ScrollView>

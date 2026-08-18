@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="🔌 Scanner de Porta"
+        android:textColor="#2196F3"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/editPortScannerIp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="#1E1E1E"
+        android:hint="Endereço IP alvo"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#777777" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/editPortaInicio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:background="#1E1E1E"
+            android:hint="Porta inicial"
+            android:inputType="number"
+            android:padding="12dp"
+            android:text="1"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777" />
+
+        <EditText
+            android:id="@+id/editPortaFim"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="#1E1E1E"
+            android:hint="Porta final"
+            android:inputType="number"
+            android:padding="12dp"
+            android:text="1024"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtAvisoPortas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text=""
+        android:textColor="#FFA726"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnEscanearPortas"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="#2196F3"
+        android:text="🔍 Escanear Portas"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/progressBarPortas"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txtProgressoPortas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text=""
+        android:textColor="#AAAAAA"
+        android:textSize="13sp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/containerResultadosPortas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
+</LinearLayout>
